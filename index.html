@@ -180,7 +180,7 @@
 
   </main>
 
-  <!-- Customer Invoice Modal -->
+  <!-- Customer Invoice Modal (No Purchase Cost Shown) -->
   <div id="invoiceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-2 border-gold max-h-[90vh] overflow-y-auto">
       <button onclick="closeInvoiceModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-lg">✕</button>
@@ -191,45 +191,59 @@
           <img src="Afsheen Beauty Collection Badge.png" alt="Logo" class="w-20 h-20 mx-auto rounded-full border border-gold mb-2 object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
           <h2 class="text-xl font-bold font-serif-title text-burgundy">AFSHEEN COLLECTION</h2>
           <p class="text-[11px] text-amber-700 italic">Beauty in Every Shade</p>
-          <p class="text-xs font-semibold text-gray-500 mt-2">OFFICIAL SALES INVOICE</p>
+          <p class="text-xs font-bold text-gray-600 mt-2 tracking-wide uppercase">Official Customer Receipt</p>
         </div>
 
-        <div class="text-xs space-y-1 text-gray-600 bg-pink-50/50 p-3 rounded-lg">
-          <p><strong>Invoice Date:</strong> <span id="invDate">--</span></p>
+        <div class="text-xs space-y-1 text-gray-600 bg-pink-50/50 p-3 rounded-lg border border-pink-100">
+          <p><strong>Date:</strong> <span id="invDate">--</span></p>
           <p><strong>Customer Name:</strong> <span id="invCustomer" class="text-gray-900 font-bold">--</span></p>
         </div>
 
-        <table class="w-full text-xs text-left border-collapse my-2">
+        <!-- Product Table (Only Sales Price & Total) -->
+        <table class="w-full text-xs text-left border-collapse my-3">
           <thead>
-            <tr class="border-b border-gray-200 font-bold text-gray-700">
-              <th class="py-2">Item</th>
-              <th class="py-2 text-center">Qty</th>
-              <th class="py-2 text-right">Price</th>
-              <th class="py-2 text-right">Total</th>
+            <tr class="border-b border-gray-200 font-bold text-gray-700 bg-gray-50">
+              <th class="py-2 px-2">Item Description</th>
+              <th class="py-2 px-1 text-center">Qty</th>
+              <th class="py-2 px-1 text-right">Price</th>
+              <th class="py-2 px-2 text-right">Total</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr>
-              <td id="invProduct" class="py-2 text-gray-800 font-medium">--</td>
-              <td id="invQty" class="py-2 text-center">--</td>
-              <td id="invUnitPrice" class="py-2 text-right">--</td>
-              <td id="invTotal" class="py-2 text-right font-bold text-burgundy">--</td>
+              <td id="invProduct" class="py-2 px-2 text-gray-800 font-medium">--</td>
+              <td id="invQty" class="py-2 px-1 text-center">--</td>
+              <td id="invUnitPrice" class="py-2 px-1 text-right">--</td>
+              <td id="invTotal" class="py-2 px-2 text-right font-bold text-burgundy">--</td>
             </tr>
           </tbody>
         </table>
 
-        <div class="border-t border-gray-200 pt-3 flex justify-between items-center text-sm font-bold text-burgundy">
-          <span>Grand Total Amount:</span>
-          <span id="invGrandTotal" class="text-base">Rs. 0</span>
+        <div class="border-t-2 border-dashed border-gray-300 pt-3 flex justify-between items-center text-sm font-bold text-burgundy">
+          <span>Grand Total:</span>
+          <span id="invGrandTotal" class="text-lg text-burgundy">Rs. 0</span>
         </div>
 
-        <div class="text-center text-[10px] text-gray-400 border-t pt-3 mt-4">
+        <!-- Contact & Social Footer -->
+        <div class="border-t border-pink-100 pt-3 mt-4 text-[11px] text-gray-600 space-y-1.5 bg-pink-50/30 p-3 rounded-lg">
+          <p class="font-bold text-burgundy flex items-center gap-1">
+            💬 WhatsApp: <span class="text-gray-800 font-normal">0322 5331900</span>
+          </p>
+          <p class="font-bold text-burgundy">Follow Us:</p>
+          <div class="grid grid-cols-1 gap-0.5 text-[10px] text-gray-600 pl-2">
+            <p>🔹 <strong>Facebook:</strong> afsheencollection.pk</p>
+            <p>📷 <strong>Instagram:</strong> afsheencollection.pk</p>
+            <p>🎵 <strong>TikTok:</strong> @afsheencollection.pk</p>
+          </div>
+        </div>
+
+        <div class="text-center text-[10px] text-gray-400 pt-1">
           Thank you for shopping with Afsheen Collection! ❤️
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="mt-4 flex gap-2">
+      <div class="mt-4">
         <button onclick="downloadCustomerInvoicePDF()" class="w-full theme-burgundy text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow hover:bg-opacity-90 flex items-center justify-center gap-2">
           <span>📥</span> Download Customer Invoice (PDF)
         </button>
@@ -238,17 +252,15 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/library/d/1ykp9DglJeWq0SAdi2s3HBLTmyrEZDFtl1BJqyNI7z2GbYKdGAAJUmxPg/5";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-fN1RePPWtm-SR41qDe7PzTEEl0S1YEharaetmzjGjrxwSisetdAOfswyUJ8fHVSXPQ/exec";
 
     let rawData = { sales: [], purchase: [] };
 
-    // Standard Current Month String e.g. "Oct 2026"
     function getCurrentMonthStr() {
       const d = new Date();
       return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
     }
 
-    // Convert raw date string to Month String e.g. "Oct 2026"
     function parseToMonthStr(dateVal) {
       if (!dateVal) return getCurrentMonthStr();
       const d = new Date(dateVal);
@@ -256,7 +268,6 @@
       return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
     }
 
-    // Format Date to DD/MM/YYYY
     function formatDateDisplay(dateVal) {
       if (!dateVal) return '-';
       const d = new Date(dateVal);
@@ -278,20 +289,24 @@
       document.getElementById("priceLabel").innerText = isSale ? "Selling Price (Per Unit)" : "Purchase Price (Per Unit)";
     }
 
-    async function loadData() {
+    // JSONP Fetch to completely eliminate CORS / Network Errors
+    function loadData() {
       const table = document.getElementById("salesTable");
       table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">Syncing live data from Google Sheet...</td></tr>`;
 
-      try {
-        const response = await fetch(SCRIPT_URL + "?action=getData");
-        rawData = await response.json();
-        
+      const script = document.createElement('script');
+      window.handleScriptResponse = function(data) {
+        rawData = data;
         populateMonths();
         filterData();
-      } catch(err) {
-        console.error("Fetch Error:", err);
-        table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 font-bold">Error loading data. Check Web App URL.</td></tr>`;
-      }
+        document.body.removeChild(script);
+      };
+
+      script.src = SCRIPT_URL + "?action=getData&callback=handleScriptResponse";
+      script.onerror = function() {
+        table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 font-bold">Error loading data. Make sure Google Apps Script is deployed to "Anyone".</td></tr>`;
+      };
+      document.body.appendChild(script);
     }
 
     function populateMonths() {
@@ -302,7 +317,7 @@
       if(rawData.sales && rawData.sales.length > 1) {
         rawData.sales.slice(1).forEach(row => {
           const m = row[8] || parseToMonthStr(row[0]);
-          if(m) months.add(m.trim());
+          if(m) months.add(String(m).trim());
         });
       }
 
@@ -310,23 +325,20 @@
       const previousSelection = filter.value;
       filter.innerHTML = '';
       
-      // Default option: Current Month
       filter.innerHTML += `<option value="${currentM}">📅 Current Month (${currentM})</option>`;
       
-      // Other months
       Array.from(months).forEach(m => {
         if (m !== currentM) {
           filter.innerHTML += `<option value="${m}">${m}</option>`;
         }
       });
 
-      // All Summary option
       filter.innerHTML += `<option value="All">📊 All Months Summary</option>`;
 
       if (previousSelection && (months.has(previousSelection) || previousSelection === "All")) {
         filter.value = previousSelection;
       } else {
-        filter.value = currentM; // Default Current Month
+        filter.value = currentM;
       }
     }
 
@@ -363,7 +375,7 @@
         return;
       }
 
-      sales.slice().reverse().slice(0, 20).forEach((r, idx) => {
+      sales.slice().reverse().slice(0, 20).forEach((r) => {
         const displayDate = formatDateDisplay(r[0]);
         const customer = r[1] || 'Guest Customer';
         const product = r[2] || 'Item';
@@ -416,7 +428,7 @@
           body: JSON.stringify(payload)
         });
 
-        alert(`Entry Saved! Data saved to "${monthStr}" record.`);
+        alert(`Entry Saved Successfully!`);
         document.getElementById("entryForm").reset();
         document.getElementById('date').valueAsDate = new Date();
         toggleFields();
@@ -430,7 +442,6 @@
       }
     }
 
-    // Modal Invoice Functions
     function openInvoiceModal(date, customer, product, qty, price, total) {
       document.getElementById("invDate").innerText = date;
       document.getElementById("invCustomer").innerText = customer;
@@ -447,13 +458,12 @@
       document.getElementById("invoiceModal").classList.add("hidden");
     }
 
-    // Download Customer Invoice PDF
     function downloadCustomerInvoicePDF() {
       const element = document.getElementById('invoicePrintArea');
       const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
       const opt = {
-        margin:       0.2,
-        filename:     `Invoice_AfsheenCollection_${custName}.pdf`,
+        margin:       0.15,
+        filename:     `Invoice_${custName}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2 },
         jsPDF:        { unit: 'in', format: 'a5', orientation: 'portrait' }
@@ -461,7 +471,6 @@
       html2pdf().set(opt).from(element).save();
     }
 
-    // Download Monthly Report PDF
     function downloadReportPDF() {
       const element = document.getElementById('dashboardReport');
       const monthSel = document.getElementById('monthFilter').value;
