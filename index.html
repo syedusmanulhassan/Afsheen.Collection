@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Afsheen Collection - Sales & Purchase Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- html2pdf for PDF Export -->
@@ -14,6 +14,7 @@
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #FDF2F4;
+      overflow-x: hidden;
     }
     .font-serif-title { font-family: 'Playfair Display', serif; }
     .font-script { font-family: 'Great Vibes', cursive; }
@@ -36,7 +37,7 @@
   <div id="loginScreen" class="fixed inset-0 bg-[#FDF2F4] flex items-center justify-center p-4 z-50">
     <div id="loginBox" class="bg-white rounded-2xl shadow-2xl border-2 border-gold max-w-sm w-full p-6 text-center space-y-5">
       <div class="w-24 h-24 mx-auto rounded-full border-2 border-gold bg-pink-50 p-1 shadow-md overflow-hidden">
-        <img src="Afsheen Beauty Collection Badge.png" alt="Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
+        <img src="Inovice image.png" alt="Logo Banner" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
       </div>
       <div>
         <h2 class="text-2xl font-bold font-serif-title text-burgundy tracking-wide">AFSHEEN COLLECTION</h2>
@@ -65,23 +66,14 @@
   <!-- DASHBOARD WRAPPER -->
   <div id="dashboardWrapper" class="hidden">
 
-    <!-- Header Banner -->
-    <header class="theme-burgundy text-white shadow-lg border-b-4 border-gold">
-      <div class="max-w-5xl mx-auto px-4 py-4 sm:py-5 flex flex-row items-center justify-between gap-3">
-        <div class="text-left">
-          <h1 class="text-xl sm:text-3xl font-bold font-serif-title tracking-wide text-pink-100">AFSHEEN COLLECTION</h1>
-          <p class="text-[11px] sm:text-sm text-amber-200 italic font-light tracking-wider">Beauty in Every Shade • Sales Dashboard</p>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-full border-2 border-gold bg-pink-50 p-0.5 flex-shrink-0 shadow-md overflow-hidden">
-            <img src="Afsheen Beauty Collection Badge.png" alt="Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
-          </div>
-        </div>
+    <!-- Header Banner Image (Replacing Logo & Title) -->
+    <header class="max-w-5xl mx-auto px-2 sm:px-4 pt-4">
+      <div class="w-full rounded-2xl border-2 border-gold shadow-lg overflow-hidden bg-pink-100 max-h-48 sm:max-h-64">
+        <img src="Inovice image.png" alt="Afsheen Collection Header Banner" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.src='https://via.placeholder.com/1000x300/8B263E/FFFFFF?text=AFSHEEN+COLLECTION';">
       </div>
     </header>
 
-    <main id="dashboardReport" class="max-w-5xl mx-auto px-3 sm:px-4 mt-4 sm:mt-6 space-y-4 sm:space-y-6">
+    <main id="dashboardReport" class="max-w-5xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6 space-y-4 sm:space-y-6">
 
       <!-- Month Filter Bar -->
       <div class="bg-white p-3 sm:p-4 rounded-xl shadow-md border border-pink-100 flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -181,10 +173,10 @@
         </form>
       </div>
 
-      <!-- Recent Log Table -->
-      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-pink-100 overflow-hidden">
+      <!-- Recent Log Table (FIXED OVERFLOW FOR MOBILE) -->
+      <div class="bg-white p-3 sm:p-6 rounded-xl shadow-md border border-pink-100 max-w-full overflow-hidden">
         <div class="flex justify-between items-center border-b border-pink-100 pb-3 mb-4">
-          <h2 class="text-base sm:text-lg font-bold text-burgundy font-serif-title flex items-center gap-2">
+          <h2 class="text-sm sm:text-lg font-bold text-burgundy font-serif-title flex items-center gap-2">
             <span>📋</span> Transactions & Sales Log
           </h2>
           <button onclick="loadData()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border">
@@ -192,8 +184,9 @@
           </button>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+        <!-- Touch-optimized Scrollable Container -->
+        <div class="w-full overflow-x-auto -mx-1 sm:mx-0 px-1">
+          <table class="w-full text-left border-collapse text-xs min-w-[600px]">
             <thead>
               <tr class="bg-pink-50 text-burgundy border-b border-pink-200 font-bold">
                 <th class="p-2 sm:p-2.5">Date</th>
@@ -217,7 +210,7 @@
 
     </main>
 
-    <!-- CUSTOMER INVOICE MODAL (BIGGER LOGO & TEXT REMOVED) -->
+    <!-- CUSTOMER INVOICE MODAL -->
     <div id="invoiceModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4 z-50">
       <div class="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative border-2 border-gold max-h-[95vh] overflow-y-auto">
         <button onclick="closeInvoiceModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-lg z-10">✕</button>
@@ -227,14 +220,20 @@
           
           <!-- Header Banner -->
           <div class="flex flex-col sm:flex-row justify-between items-center border-b border-pink-200 pb-4 gap-3 text-center sm:text-left">
-            <!-- Left Side: Extra Large Logo Badge (Text Removed) -->
-            <div class="flex items-center justify-center sm:justify-start">
-              <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-full border-2 border-gold bg-pink-50 p-1 flex-shrink-0 shadow-lg overflow-hidden">
-                <img src="Afsheen Beauty Collection Badge.png" alt="Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-16 rounded-full border-2 border-gold bg-pink-50 p-0.5 flex-shrink-0 shadow-md overflow-hidden">
+                <img src="Inovice image.png" alt="Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
+              </div>
+              <div>
+                <div class="flex items-center justify-center sm:justify-start gap-1">
+                  <span class="text-amber-500 text-lg">👑</span>
+                  <h2 class="text-2xl sm:text-3xl font-bold font-serif-title text-burgundy tracking-wide">Afsheen</h2>
+                </div>
+                <p class="text-[11px] font-bold tracking-widest text-burgundy uppercase">COLLECTION</p>
+                <p class="text-xs text-pink-600 font-script text-base mt-0.5">Beauty in Every Shade ♡</p>
               </div>
             </div>
 
-            <!-- Right Side: Invoice Title & Info -->
             <div class="text-center sm:text-right space-y-1">
               <h1 class="text-2xl font-bold font-serif-title text-burgundy tracking-widest">INVOICE</h1>
               <span id="invNoBadge" class="inline-block bg-pink-100 text-burgundy text-xs font-bold px-3 py-1 rounded-full border border-pink-200"># AC-20261001</span>
@@ -360,6 +359,7 @@
 
     let rawData = { records: [] };
 
+    // NEW CREDENTIALS CHECK
     function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById("loginEmail").value.trim().toLowerCase();
@@ -367,7 +367,7 @@
       const errorBox = document.getElementById("loginError");
       const box = document.getElementById("loginBox");
 
-      if (email === "admin@afsheencollection.pk" && pass === "afsheen123") {
+      if (email === "ibrahim@afsheencollection.pk" && pass === "Ib@him1234**") {
         document.getElementById("loginScreen").classList.add("hidden");
         document.getElementById("dashboardWrapper").classList.remove("hidden");
         loadData();
