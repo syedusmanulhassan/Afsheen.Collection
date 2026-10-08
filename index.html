@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Afsheen Collection - Sales & Purchase Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- html2canvas for Fast Image Generation & Native Sharing -->
+  <!-- html2canvas for Image Generation & Native Sharing -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -86,8 +86,7 @@
       <div class="bg-white p-3 sm:p-4 rounded-xl shadow-md border border-pink-100 flex flex-col sm:flex-row items-center justify-between gap-3">
         <div class="flex items-center gap-2 w-full sm:w-auto">
           <label class="font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap">📅 View Tab Data:</label>
-          <select id="monthFilter" onchange="loadData()" class="w-full sm:w-60 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-bold text-burgundy text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
-            <option value="Current Month">📅 Current Month (Active)</option>
+          <select id="monthFilter" onchange="filterData()" class="w-full sm:w-60 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-bold text-burgundy text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
           </select>
         </div>
       </div>
@@ -322,7 +321,7 @@
             </div>
           </div>
 
-          <!-- Clean Contact Footer (No broken links) -->
+          <!-- Clean Contact Footer -->
           <div class="border-t border-pink-200 pt-2.5 text-[11px] text-gray-700 flex justify-between items-center px-1">
             <div class="flex items-center gap-1 font-bold text-green-700">
               <svg class="w-3.5 h-3.5 fill-green-600" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
@@ -334,7 +333,7 @@
 
         </div>
 
-        <!-- Action Button (Native High-Speed Image/File Share) -->
+        <!-- Action Button -->
         <div class="mt-3">
           <button onclick="shareNativeInvoiceFile()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2">
             <span>📲</span> Share Invoice File (WhatsApp, FB)
@@ -351,6 +350,7 @@
 
     let rawData = { records: [] };
 
+    // PASSWORD UPDATE TO: Ibr@him1234**
     function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById("loginEmail").value.trim().toLowerCase();
@@ -394,11 +394,8 @@
       document.getElementById("priceLabel").innerText = isSale ? "Selling Price (Per Unit)" : "Purchase Price (Per Unit)";
     }
 
-    // HIGH-SPEED DIRECT TAB DATA FETCHING
     function loadData() {
       const table = document.getElementById("salesTable");
-      const selectedTab = document.getElementById("monthFilter").value || "Current Month";
-      
       table.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">Syncing live data from Google Sheet...</td></tr>`;
 
       const oldScript = document.getElementById('jsonpScript');
@@ -413,7 +410,7 @@
         filterData();
       };
 
-      script.src = SCRIPT_URL + "?action=getData&tab=" + encodeURIComponent(selectedTab) + "&callback=handleScriptResponse&ts=" + new Date().getTime();
+      script.src = SCRIPT_URL + "?action=getData&callback=handleScriptResponse&ts=" + new Date().getTime();
       script.onerror = function() {
         table.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-red-500 font-bold">Unable to connect. Check Google Apps Script deployment.</td></tr>`;
       };
@@ -421,20 +418,29 @@
     }
 
     function populateMonths() {
+      const tabs = new Set();
+      tabs.add("Current Month");
+
+      if(rawData.records && rawData.records.length > 1) {
+        rawData.records.slice(1).forEach(row => {
+          const tabName = row[9];
+          if(tabName && String(tabName).trim() !== "") {
+            tabs.add(String(tabName).trim());
+          }
+        });
+      }
+
       const filter = document.getElementById("monthFilter");
       const previousSelection = filter.value;
       filter.innerHTML = '';
       
-      var tabs = rawData.tabs || ["Current Month"];
-      if(!tabs.includes("Current Month")) tabs.unshift("Current Month");
-
-      tabs.forEach(t => {
+      Array.from(tabs).forEach(t => {
         filter.innerHTML += `<option value="${t}">${t === 'Current Month' ? '📅 Current Month (Active)' : '📂 ' + t}</option>`;
       });
 
       filter.innerHTML += `<option value="All">📊 All Sheets Summary</option>`;
 
-      if (previousSelection && (tabs.includes(previousSelection) || previousSelection === "All")) {
+      if (previousSelection && (tabs.has(previousSelection) || previousSelection === "All")) {
         filter.value = previousSelection;
       } else {
         filter.value = "Current Month";
@@ -443,7 +449,15 @@
 
     function filterData() {
       const selectedTab = document.getElementById("monthFilter").value;
+      
       let records = (rawData.records && rawData.records.length > 1) ? rawData.records.slice(1) : [];
+
+      if (selectedTab !== "All") {
+        records = records.filter(r => {
+          const rowTab = r[9] ? String(r[9]).trim() : "Current Month";
+          return rowTab.toLowerCase() === selectedTab.trim().toLowerCase();
+        });
+      }
 
       let salesRecords = records.filter(r => String(r[1]).toLowerCase() === 'sale' || !r[1]);
       let purchaseRecords = records.filter(r => String(r[1]).toLowerCase() === 'purchase');
@@ -530,7 +544,7 @@
         document.getElementById('date').valueAsDate = new Date();
         toggleFields();
         
-        loadData();
+        setTimeout(loadData, 1200);
       } catch(err) {
         alert("Error saving data: " + err);
       } finally {
@@ -577,7 +591,6 @@
       document.getElementById("invoiceModal").classList.add("hidden");
     }
 
-    // Fast Native Web Share for WhatsApp & Social Media
     async function shareNativeInvoiceFile() {
       const element = document.getElementById('invoicePrintArea');
       const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
