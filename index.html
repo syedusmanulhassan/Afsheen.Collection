@@ -51,8 +51,8 @@
     <!-- Month Filter Bar & PDF Export -->
     <div class="bg-white p-4 rounded-xl shadow-md border border-pink-100 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <label class="font-bold text-gray-700 text-sm whitespace-nowrap">📅 Select Month Tab:</label>
-        <select id="monthFilter" onchange="filterData()" class="w-full sm:w-56 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-bold text-burgundy focus:outline-none focus:ring-2 focus:ring-pink-400">
+        <label class="font-bold text-gray-700 text-sm whitespace-nowrap">📅 View Tab Data:</label>
+        <select id="monthFilter" onchange="filterData()" class="w-full sm:w-60 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-bold text-burgundy focus:outline-none focus:ring-2 focus:ring-pink-400">
           <!-- Populated dynamically -->
         </select>
       </div>
@@ -97,7 +97,7 @@
         <h2 class="text-lg font-bold text-burgundy font-serif-title flex items-center gap-2">
           <span>➕</span> Add New Transaction
         </h2>
-        <span class="text-xs bg-pink-100 text-burgundy px-2.5 py-1 rounded-full font-medium">Single Tab Manager</span>
+        <span class="text-xs bg-pink-100 text-burgundy px-2.5 py-1 rounded-full font-medium">Saves to 'Current Month'</span>
       </div>
 
       <form id="entryForm" onsubmit="submitData(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -188,7 +188,7 @@
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-2 border-gold max-h-[90vh] overflow-y-auto">
       <button onclick="closeInvoiceModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-lg">✕</button>
       
-      <!-- Invoice Printable Content Area -->
+      <!-- Invoice Printable Area -->
       <div id="invoicePrintArea" class="p-4 bg-white space-y-4">
         <div class="text-center border-b pb-4 border-pink-100">
           <img src="Afsheen Beauty Collection Badge.png" alt="Logo" class="w-20 h-20 mx-auto rounded-full border border-gold mb-2 object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
@@ -243,45 +243,22 @@
         </div>
       </div>
 
-      <!-- Multi-Action Buttons (PDF, PNG Image & Direct WhatsApp Share) -->
+      <!-- Action Buttons with Native Web Share -->
       <div class="mt-4 grid grid-cols-1 gap-2">
-        <button onclick="shareWhatsAppDirect()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2">
-          <span>💬</span> Share Bill Text on WhatsApp
-        </button>
-        <button onclick="downloadInvoiceImage()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2">
-          <span>🖼️</span> Download Bill as Image (PNG)
+        <button onclick="shareNativeInvoiceFile()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2">
+          <span>📲</span> Share Invoice Image / File (WhatsApp, FB, Insta)
         </button>
         <button onclick="downloadCustomerInvoicePDF()" class="w-full theme-burgundy text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow hover:bg-opacity-90 flex items-center justify-center gap-2">
-          <span>📥</span> Download Bill as PDF
+          <span>📥</span> Download Invoice PDF
         </button>
       </div>
     </div>
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyclqLx_InB_ULYqwrtyGT0ZbgFgQRIs2Nsd4uCI_bWpxaA6MyEr3CcWoOfqMYibBT1Yw/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRGzLo0NqRqlf6OUm4ICRL-W7T-M2xCakf-kvUBVEHQq_hjnG2V6DXkUFp7BMMlymdZA/exec";
 
     let rawData = { records: [] };
-
-    function getCurrentMonthStr() {
-      const d = new Date();
-      return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-    }
-
-    function parseToMonthStr(dateVal) {
-      if (!dateVal) return getCurrentMonthStr();
-      const cleanDate = String(dateVal).split('T')[0];
-      const parts = cleanDate.split('-');
-      if (parts.length >= 2) {
-        const year = parts[0];
-        const monthNum = Number(parts[1]) - 1;
-        const d = new Date(year, monthNum, 1);
-        if (!isNaN(d.getTime())) {
-          return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-        }
-      }
-      return getCurrentMonthStr();
-    }
 
     function formatDateDisplay(dateVal) {
       if (!dateVal) return '-';
@@ -328,15 +305,14 @@
     }
 
     function populateMonths() {
-      const months = new Set();
-      const currentM = getCurrentMonthStr();
-      months.add(currentM);
+      const tabs = new Set();
+      tabs.add("Current Month");
 
       if(rawData.records && rawData.records.length > 1) {
         rawData.records.slice(1).forEach(row => {
-          const m = row[9] || parseToMonthStr(row[0]);
-          if(m && String(m).trim() !== "") {
-            months.add(String(m).trim());
+          const tabName = row[9];
+          if(tabName && String(tabName).trim() !== "") {
+            tabs.add(String(tabName).trim());
           }
         });
       }
@@ -345,28 +321,28 @@
       const previousSelection = filter.value;
       filter.innerHTML = '';
       
-      Array.from(months).forEach(m => {
-        filter.innerHTML += `<option value="${m}">${m === currentM ? '📅 Current Month (' + m + ')' : m}</option>`;
+      Array.from(tabs).forEach(t => {
+        filter.innerHTML += `<option value="${t}">${t === 'Current Month' ? '📅 Current Month (Active)' : '📂 ' + t}</option>`;
       });
 
-      filter.innerHTML += `<option value="All">📊 All Months Summary</option>`;
+      filter.innerHTML += `<option value="All">📊 All Sheets Summary</option>`;
 
-      if (previousSelection && (months.has(previousSelection) || previousSelection === "All")) {
+      if (previousSelection && (tabs.has(previousSelection) || previousSelection === "All")) {
         filter.value = previousSelection;
       } else {
-        filter.value = currentM; // Default to Current Month
+        filter.value = "Current Month";
       }
     }
 
     function filterData() {
-      const selectedMonth = document.getElementById("monthFilter").value;
+      const selectedTab = document.getElementById("monthFilter").value;
       
       let records = (rawData.records && rawData.records.length > 1) ? rawData.records.slice(1) : [];
 
-      if (selectedMonth !== "All") {
+      if (selectedTab !== "All") {
         records = records.filter(r => {
-          const rowMonth = r[9] ? String(r[9]).trim() : parseToMonthStr(r[0]);
-          return rowMonth.toLowerCase() === selectedMonth.trim().toLowerCase();
+          const rowTab = r[9] ? String(r[9]).trim() : "Current Month";
+          return rowTab.toLowerCase() === selectedTab.trim().toLowerCase();
         });
       }
 
@@ -385,7 +361,7 @@
       table.innerHTML = "";
 
       if(records.length === 0) {
-        table.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-400">No records found for ${selectedMonth}.</td></tr>`;
+        table.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-400">No records found in ${selectedTab}.</td></tr>`;
         return;
       }
 
@@ -427,7 +403,6 @@
       btn.innerHTML = "<span>⏳</span> Saving to Sheet...";
 
       const dateVal = document.getElementById("date").value;
-      const monthStr = parseToMonthStr(dateVal);
 
       const payload = {
         type: document.getElementById("type").value,
@@ -436,8 +411,7 @@
         product: document.getElementById("product").value,
         price: document.getElementById("price").value,
         costPrice: document.getElementById("costPrice").value || 0,
-        quantity: document.getElementById("quantity").value,
-        month: monthStr
+        quantity: document.getElementById("quantity").value
       };
 
       try {
@@ -448,7 +422,7 @@
           body: JSON.stringify(payload)
         });
 
-        alert(`Entry Saved Successfully into tab "${monthStr}"!`);
+        alert(`Entry Saved Successfully to 'Current Month'!`);
         document.getElementById("entryForm").reset();
         document.getElementById('date').valueAsDate = new Date();
         toggleFields();
@@ -478,42 +452,36 @@
       document.getElementById("invoiceModal").classList.add("hidden");
     }
 
-    // Direct Share Text via WhatsApp
-    function shareWhatsAppDirect() {
-      const cust = document.getElementById("invCustomer").innerText;
-      const date = document.getElementById("invDate").innerText;
-      const prod = document.getElementById("invProduct").innerText;
-      const qty = document.getElementById("invQty").innerText;
-      const total = document.getElementById("invGrandTotal").innerText;
-
-      const text = `*AFSHEEN COLLECTION - CUSTOMER INVOICE*%0A` +
-                   `-----------------------------------%0A` +
-                   `*Date:* ${date}%0A` +
-                   `*Customer:* ${cust}%0A` +
-                   `*Item:* ${prod} (Qty: ${qty})%0A` +
-                   `*Total Amount:* ${total}%0A` +
-                   `-----------------------------------%0A` +
-                   `*WhatsApp:* 0322 5331900%0A` +
-                   `*Instagram:* instagram.com/afsheencollection.pk%0A` +
-                   `Thank you for shopping with us! ❤️`;
-
-      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-    }
-
-    // Download Bill as Image (PNG) for social media sharing
-    function downloadInvoiceImage() {
+    // Native Social Share (Image File directly to WhatsApp, Facebook, Instagram)
+    async function shareNativeInvoiceFile() {
       const element = document.getElementById('invoicePrintArea');
       const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
 
-      html2canvas(element, { scale: 2 }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `Invoice_${custName}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
+      const canvas = await html2canvas(element, { scale: 2 });
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], `AfsheenCollection_Invoice_${custName}.png`, { type: 'image/png' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Customer Invoice - Afsheen Collection',
+              text: 'Here is your official sales invoice from Afsheen Collection.'
+            });
+          } catch (err) {
+            console.log('Share canceled or failed:', err);
+          }
+        } else {
+          // Fallback if desktop or unsupported browser
+          const link = document.createElement('a');
+          link.download = `AfsheenCollection_Invoice_${custName}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          alert("Image downloaded to your device! You can now send it on WhatsApp or Social Apps.");
+        }
       });
     }
 
-    // Download Bill as PDF
     function downloadCustomerInvoicePDF() {
       const element = document.getElementById('invoicePrintArea');
       const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
