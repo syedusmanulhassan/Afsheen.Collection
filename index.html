@@ -31,10 +31,10 @@
     }
     .animate-shake { animation: shake 0.4s ease-in-out; }
 
-    /* Strict Single-Page PDF Print Container Styling */
+    /* Standard A5 Printable Width Lock to prevent PDF cracks */
     #invoicePrintArea {
-      width: 100% !important;
-      max-width: 580px !important;
+      width: 595px !important;
+      max-width: 100% !important;
       margin: 0 auto !important;
       box-sizing: border-box !important;
       background-color: #FFF8F9 !important;
@@ -234,16 +234,16 @@
 
     </main>
 
-    <!-- CUSTOMER INVOICE MODAL (CLEAN & PERFECT PDF FIT) -->
+    <!-- CUSTOMER INVOICE MODAL (PDF 100% PERFECT RENDER) -->
     <div id="invoiceModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4 z-50">
       <div class="bg-white rounded-2xl max-w-xl w-full p-4 sm:p-6 shadow-2xl relative border-2 border-gold max-h-[95vh] overflow-y-auto">
         <button onclick="closeInvoiceModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-lg z-10">✕</button>
         
-        <!-- Printable Area (Formatted specifically for single-page PDF render) -->
+        <!-- Printable Invoice Box -->
         <div id="invoicePrintArea" class="bg-[#FFF8F9] p-4 sm:p-5 rounded-xl border border-pink-200 space-y-3.5 text-gray-800">
           
           <!-- Top Banner Image -->
-          <div class="w-full rounded-xl overflow-hidden border border-gold shadow-sm max-h-32 sm:max-h-40 mb-1">
+          <div class="w-full rounded-xl overflow-hidden border border-gold shadow-sm max-h-36 mb-1">
             <img src="Inovice image.png" alt="Afsheen Collection Banner" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.src='Afsheen Beauty Collection Badge.png';">
           </div>
 
@@ -304,7 +304,7 @@
             </table>
           </div>
 
-          <!-- Summary & Note -->
+          <!-- Summary & Shipping Calculation -->
           <div class="grid grid-cols-2 gap-2 items-end pt-1">
             <div class="bg-pink-50/60 p-2.5 rounded-xl border border-pink-100 text-[11px]">
               <p class="font-bold text-burgundy font-script text-sm">♡ A little note for you...</p>
@@ -327,7 +327,7 @@
             </div>
           </div>
 
-          <!-- Clean Footer (No Social Links - Only WhatsApp & Tagline) -->
+          <!-- Clean Footer Banner -->
           <div class="border-t border-pink-200 pt-2.5 text-[11px] text-gray-700 flex justify-between items-center px-1">
             <div class="flex items-center gap-1 font-bold text-green-700">
               <svg class="w-3.5 h-3.5 fill-green-600" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
@@ -355,7 +355,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRGzLo0NqRqlf6OUm4ICRL-W7T-M2xCakf-kvUBVEHQq_hjnG2V6DXkUFp7BMMlymdZA/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9FOmjDfg33kAPOdG-v3g1MgWKTv6UIYa1qSOGaibEW62UxRy8cT6BgHowXFj6UDk8dQ/exec";
 
     let rawData = { records: [] };
 
@@ -627,7 +627,7 @@
       });
     }
 
-    // 100% PERFECT SINGLE PAGE PDF RENDER WITH PRECISE A5 RATIO
+    // 100% PERFECT SINGLE PAGE A5 FIT WITH ZERO MARGIN CRACK
     function downloadCustomerInvoicePDF() {
       const element = document.getElementById('invoicePrintArea');
       const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
@@ -637,7 +637,7 @@
         filename:     `Invoice_${custName}.pdf`,
         image:        { type: 'jpeg', quality: 0.98 },
         html2canvas:  { scale: 2, useCORS: true, logging: false },
-        jsPDF:        { unit: 'in', format: 'a5', orientation: 'portrait' }
+        jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' }
       };
 
       html2pdf().set(opt).from(element).save();
