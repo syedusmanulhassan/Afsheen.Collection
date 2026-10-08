@@ -7,6 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- html2pdf for PDF Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- html2canvas for Image Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -181,12 +183,12 @@
 
   </main>
 
-  <!-- Customer Invoice Modal (Clean - No Purchase Cost) -->
+  <!-- Customer Invoice Modal -->
   <div id="invoiceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-2 border-gold max-h-[90vh] overflow-y-auto">
       <button onclick="closeInvoiceModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-lg">✕</button>
       
-      <!-- Invoice Printable Content -->
+      <!-- Invoice Printable Content Area -->
       <div id="invoicePrintArea" class="p-4 bg-white space-y-4">
         <div class="text-center border-b pb-4 border-pink-100">
           <img src="Afsheen Beauty Collection Badge.png" alt="Logo" class="w-20 h-20 mx-auto rounded-full border border-gold mb-2 object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
@@ -241,16 +243,23 @@
         </div>
       </div>
 
-      <div class="mt-4">
+      <!-- Multi-Action Buttons (PDF, PNG Image & Direct WhatsApp Share) -->
+      <div class="mt-4 grid grid-cols-1 gap-2">
+        <button onclick="shareWhatsAppDirect()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2">
+          <span>💬</span> Share Bill Text on WhatsApp
+        </button>
+        <button onclick="downloadInvoiceImage()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2">
+          <span>🖼️</span> Download Bill as Image (PNG)
+        </button>
         <button onclick="downloadCustomerInvoicePDF()" class="w-full theme-burgundy text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow hover:bg-opacity-90 flex items-center justify-center gap-2">
-          <span>📥</span> Download Customer Invoice (PDF)
+          <span>📥</span> Download Bill as PDF
         </button>
       </div>
     </div>
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxu68UoFkG54-FQZWzf-yYkLq7rhJDzoHC46YUuH_fx0o0RjtP0i-f276WfEoaIpD3Ww/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-fN1RePPWtm-SR41qDe7PzTEEl0S1YEharaetmzjGjrxwSisetdAOfswyUJ8fHVSXPQ/exec";
 
     let rawData = { records: [] };
 
@@ -261,19 +270,27 @@
 
     function parseToMonthStr(dateVal) {
       if (!dateVal) return getCurrentMonthStr();
-      const d = new Date(dateVal);
-      if (isNaN(d.getTime())) return getCurrentMonthStr();
-      return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+      const cleanDate = String(dateVal).split('T')[0];
+      const parts = cleanDate.split('-');
+      if (parts.length >= 2) {
+        const year = parts[0];
+        const monthNum = Number(parts[1]) - 1;
+        const d = new Date(year, monthNum, 1);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+        }
+      }
+      return getCurrentMonthStr();
     }
 
     function formatDateDisplay(dateVal) {
       if (!dateVal) return '-';
-      const d = new Date(dateVal);
-      if (isNaN(d.getTime())) return String(dateVal).split('T')[0];
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear();
-      return `${day}/${month}/${year}`;
+      const clean = String(dateVal).split('T')[0];
+      const parts = clean.split('-');
+      if(parts.length === 3 && parts[2].length > 0) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return clean;
     }
 
     document.getElementById('date').valueAsDate = new Date();
@@ -318,7 +335,9 @@
       if(rawData.records && rawData.records.length > 1) {
         rawData.records.slice(1).forEach(row => {
           const m = row[9] || parseToMonthStr(row[0]);
-          if(m) months.add(String(m).trim());
+          if(m && String(m).trim() !== "") {
+            months.add(String(m).trim());
+          }
         });
       }
 
@@ -326,12 +345,8 @@
       const previousSelection = filter.value;
       filter.innerHTML = '';
       
-      filter.innerHTML += `<option value="${currentM}">📅 Current Month (${currentM})</option>`;
-      
       Array.from(months).forEach(m => {
-        if (m !== currentM) {
-          filter.innerHTML += `<option value="${m}">${m}</option>`;
-        }
+        filter.innerHTML += `<option value="${m}">${m === currentM ? '📅 Current Month (' + m + ')' : m}</option>`;
       });
 
       filter.innerHTML += `<option value="All">📊 All Months Summary</option>`;
@@ -339,7 +354,7 @@
       if (previousSelection && (months.has(previousSelection) || previousSelection === "All")) {
         filter.value = previousSelection;
       } else {
-        filter.value = currentM;
+        filter.value = currentM; // Default to Current Month
       }
     }
 
@@ -351,11 +366,10 @@
       if (selectedMonth !== "All") {
         records = records.filter(r => {
           const rowMonth = r[9] ? String(r[9]).trim() : parseToMonthStr(r[0]);
-          return rowMonth === selectedMonth.trim();
+          return rowMonth.toLowerCase() === selectedMonth.trim().toLowerCase();
         });
       }
 
-      // Calculate Total Sales (Type == Sale or general)
       let salesRecords = records.filter(r => String(r[1]).toLowerCase() === 'sale' || !r[1]);
       let purchaseRecords = records.filter(r => String(r[1]).toLowerCase() === 'purchase');
 
@@ -375,7 +389,7 @@
         return;
       }
 
-      records.slice().reverse().slice(0, 25).forEach((r) => {
+      records.slice().reverse().slice(0, 30).forEach((r) => {
         const displayDate = formatDateDisplay(r[0]);
         const type = r[1] || 'Sale';
         const isSale = String(type).toLowerCase() === 'sale';
@@ -394,7 +408,7 @@
             <td class="p-2.5 text-gray-700">${product}</td>
             <td class="p-2.5 text-gray-600">${qty}</td>
             <td class="p-2.5 font-bold text-gray-800">Rs. ${total.toLocaleString()}</td>
-            <td class="p-2.5 font-bold ${isSale ? 'text-green-600' : 'text-gray-400'}">${isSale ? 'Rs. ' + profit.toLocaleString() : '-'}</td>
+            <td class="p-2.5 font-bold ${isSale ? (profit >= 0 ? 'text-green-600' : 'text-red-500') : 'text-gray-400'}">${isSale ? 'Rs. ' + profit.toLocaleString() : '-'}</td>
             <td class="p-2.5">
               ${isSale ? `
                 <button onclick="openInvoiceModal('${displayDate}', '${customer.replace(/'/g, "\\'")}', '${product.replace(/'/g, "\\'")}', ${qty}, ${price},${total})" class="bg-pink-100 hover:bg-pink-200 text-burgundy text-xs px-2.5 py-1 rounded-md font-bold shadow-sm transition">
@@ -464,6 +478,42 @@
       document.getElementById("invoiceModal").classList.add("hidden");
     }
 
+    // Direct Share Text via WhatsApp
+    function shareWhatsAppDirect() {
+      const cust = document.getElementById("invCustomer").innerText;
+      const date = document.getElementById("invDate").innerText;
+      const prod = document.getElementById("invProduct").innerText;
+      const qty = document.getElementById("invQty").innerText;
+      const total = document.getElementById("invGrandTotal").innerText;
+
+      const text = `*AFSHEEN COLLECTION - CUSTOMER INVOICE*%0A` +
+                   `-----------------------------------%0A` +
+                   `*Date:* ${date}%0A` +
+                   `*Customer:* ${cust}%0A` +
+                   `*Item:* ${prod} (Qty: ${qty})%0A` +
+                   `*Total Amount:* ${total}%0A` +
+                   `-----------------------------------%0A` +
+                   `*WhatsApp:* 0322 5331900%0A` +
+                   `*Instagram:* instagram.com/afsheencollection.pk%0A` +
+                   `Thank you for shopping with us! ❤️`;
+
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    // Download Bill as Image (PNG) for social media sharing
+    function downloadInvoiceImage() {
+      const element = document.getElementById('invoicePrintArea');
+      const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
+
+      html2canvas(element, { scale: 2 }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Invoice_${custName}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+    }
+
+    // Download Bill as PDF
     function downloadCustomerInvoicePDF() {
       const element = document.getElementById('invoicePrintArea');
       const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
