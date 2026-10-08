@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -10,23 +12,40 @@
 
   <title>Afsheen Collection - Sales Dashboard</title>
 
-  <!-- Tailwind -->
+
+  <!-- =====================================================
+       TAILWIND
+  ====================================================== -->
+
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Invoice Image -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-  <!-- Fonts -->
+  <!-- =====================================================
+       HTML2PDF
+       Full invoice -> PDF
+  ====================================================== -->
+
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
+  </script>
+
+
+  <!-- =====================================================
+       FONTS
+  ====================================================== -->
+
   <link
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   >
+
 
   <style>
 
     * {
       box-sizing: border-box;
     }
+
 
     html,
     body {
@@ -39,47 +58,59 @@
       overflow-x: hidden;
     }
 
+
     body {
       color: #1f2937;
     }
+
 
     .font-serif-title {
       font-family: "Playfair Display", serif;
     }
 
+
     .font-script {
       font-family: "Great Vibes", cursive;
     }
+
 
     .theme-burgundy {
       background-color: #8B263E;
     }
 
+
     .theme-burgundy:hover {
       background-color: #741F34;
     }
+
 
     .text-burgundy {
       color: #8B263E;
     }
 
+
     .border-gold {
       border-color: #C5A059;
     }
+
 
     .bg-gold {
       background-color: #C5A059;
     }
 
+
     .text-gold {
       color: #C5A059;
     }
+
 
     .soft-shadow {
       box-shadow: 0 8px 25px rgba(139, 38, 62, 0.08);
     }
 
+
     @keyframes shake {
+
       0%, 100% {
         transform: translateX(0);
       }
@@ -91,117 +122,197 @@
       40%, 80% {
         transform: translateX(8px);
       }
+
     }
+
 
     .animate-shake {
       animation: shake 0.4s ease-in-out;
     }
 
+
     @keyframes spin {
+
       to {
         transform: rotate(360deg);
       }
+
     }
+
 
     .loading-spin {
+
       width: 18px;
       height: 18px;
+
       border: 2px solid rgba(255,255,255,.35);
       border-top-color: white;
+
       border-radius: 50%;
+
       animation: spin .7s linear infinite;
+
     }
 
+
     .page-loader {
+
       position: fixed;
       inset: 0;
+
       background: rgba(253,242,244,.96);
+
       z-index: 999;
+
       display: flex;
+
       align-items: center;
       justify-content: center;
+
       flex-direction: column;
+
       gap: 12px;
+
     }
+
 
     .page-loader.hidden {
       display: none;
     }
 
+
     .loader-circle {
+
       width: 42px;
       height: 42px;
+
       border: 4px solid #f4dce2;
+
       border-top-color: #8B263E;
+
       border-radius: 50%;
+
       animation: spin .8s linear infinite;
+
     }
 
-    #invoicePrintArea {
-      width: 100% !important;
-      max-width: 580px !important;
-      margin: 0 auto !important;
-      box-sizing: border-box !important;
-      background-color: #FFF8F9 !important;
-    }
 
     .table-scroll {
+
       overflow-x: auto;
+
       -webkit-overflow-scrolling: touch;
+
     }
+
 
     .table-scroll::-webkit-scrollbar {
       height: 6px;
     }
 
+
     .table-scroll::-webkit-scrollbar-thumb {
+
       background: #d8a9b5;
+
       border-radius: 20px;
+
     }
+
 
     .stat-card {
-      transition: transform .2s ease, box-shadow .2s ease;
+
+      transition:
+        transform .2s ease,
+        box-shadow .2s ease;
+
     }
+
 
     .stat-card:hover {
+
       transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(139, 38, 62, .10);
+
+      box-shadow:
+        0 10px 28px rgba(139, 38, 62, .10);
+
     }
 
-    @media print {
 
-      body {
-        background: white !important;
-      }
+    /*
+     * Invoice PDF area
+     */
 
-      body * {
-        visibility: hidden !important;
-      }
+    #invoicePrintArea {
 
-      #invoicePrintArea,
-      #invoicePrintArea * {
-        visibility: visible !important;
-      }
+      width: 100%;
+
+      max-width: 580px;
+
+      margin: 0 auto;
+
+      box-sizing: border-box;
+
+      background-color: #FFF8F9;
+
+    }
+
+
+    /*
+     * PDF mode
+     */
+
+    .pdf-export-mode {
+
+      width: 794px !important;
+
+      max-width: 794px !important;
+
+      margin: 0 auto !important;
+
+      background: #FFF8F9 !important;
+
+    }
+
+
+    .pdf-export-mode img {
+
+      max-width: 100% !important;
+
+    }
+
+
+    /*
+     * Mobile invoice
+     */
+
+    @media (max-width: 640px) {
 
       #invoicePrintArea {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
+
+        max-width: 100%;
+
       }
+
     }
 
+
   </style>
+
 </head>
 
+
 <body>
+
 
 <!-- =========================================================
      PAGE LOADER
 ========================================================= -->
 
-<div id="pageLoader" class="page-loader">
+<div
+  id="pageLoader"
+  class="page-loader"
+>
 
   <div class="loader-circle"></div>
 
@@ -216,8 +327,9 @@
 </div>
 
 
+
 <!-- =========================================================
-     LOGIN SCREEN
+     LOGIN
 ========================================================= -->
 
 <div
@@ -230,7 +342,6 @@
     class="bg-white rounded-2xl shadow-2xl border-2 border-gold max-w-sm w-full p-6 text-center space-y-5"
   >
 
-    <!-- Logo -->
 
     <div
       class="w-24 h-24 mx-auto rounded-full border-2 border-gold bg-pink-50 p-1 shadow-md overflow-hidden"
@@ -245,8 +356,6 @@
 
     </div>
 
-
-    <!-- Title -->
 
     <div>
 
@@ -263,8 +372,6 @@
     </div>
 
 
-    <!-- Login -->
-
     <form
       onsubmit="handleLogin(event)"
       class="space-y-4 text-left"
@@ -279,7 +386,7 @@
         <input
           type="email"
           id="loginEmail"
-          placeholder="ibrahim@afsheencollection.pk"
+          placeholder="Enter your email"
           required
           autocomplete="username"
           class="w-full p-2.5 border border-pink-200 rounded-lg text-sm bg-pink-50/30 focus:ring-2 focus:ring-burgundy focus:outline-none"
@@ -328,6 +435,7 @@
 </div>
 
 
+
 <!-- =========================================================
      DASHBOARD
 ========================================================= -->
@@ -337,9 +445,8 @@
   class="hidden w-full max-w-full overflow-hidden"
 >
 
-  <!-- =======================================================
-       HEADER
-  ======================================================== -->
+
+  <!-- HEADER -->
 
   <header class="max-w-5xl mx-auto px-2 sm:px-4 pt-4">
 
@@ -359,9 +466,8 @@
   </header>
 
 
-  <!-- =======================================================
-       MAIN
-  ======================================================== -->
+
+  <!-- MAIN -->
 
   <main
     id="dashboardReport"
@@ -370,7 +476,7 @@
 
 
     <!-- =====================================================
-         FILTER BAR
+         FILTER
     ====================================================== -->
 
     <div
@@ -381,6 +487,7 @@
         class="flex flex-col sm:flex-row items-center justify-between gap-3"
       >
 
+
         <div class="flex items-center gap-2 w-full sm:w-auto">
 
           <label
@@ -389,14 +496,17 @@
             📅 View Data:
           </label>
 
+
           <select
             id="monthFilter"
             onchange="filterData()"
             class="w-full sm:w-72 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-bold text-burgundy text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
           >
+
             <option value="Current Month">
-              📅 Current Month
+              📅 Current Month (Active)
             </option>
+
           </select>
 
         </div>
@@ -412,6 +522,7 @@
             🔄 Refresh
           </button>
 
+
           <button
             onclick="logout()"
             class="flex-1 sm:flex-none text-xs bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-3 py-2 rounded-lg border border-red-100"
@@ -424,8 +535,6 @@
       </div>
 
 
-      <!-- Connection Status -->
-
       <div
         class="mt-3 flex items-center justify-between text-[10px] sm:text-xs"
       >
@@ -436,6 +545,7 @@
         >
           ● Connecting...
         </div>
+
 
         <div
           id="recordCount"
@@ -449,14 +559,13 @@
     </div>
 
 
+
     <!-- =====================================================
-         KPI CARDS
+         KPI
     ====================================================== -->
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
 
-
-      <!-- SALES -->
 
       <div
         class="stat-card bg-white p-4 sm:p-5 rounded-xl shadow-md border-l-4 border-green-500 flex items-center justify-between"
@@ -464,9 +573,7 @@
 
         <div>
 
-          <p
-            class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider"
-          >
+          <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">
             Total Sales
           </p>
 
@@ -483,16 +590,14 @@
 
         </div>
 
-        <div
-          class="p-2.5 bg-green-100 rounded-full text-green-600 text-lg sm:text-xl"
-        >
+
+        <div class="p-2.5 bg-green-100 rounded-full text-green-600 text-lg sm:text-xl">
           💰
         </div>
 
       </div>
 
 
-      <!-- PURCHASE -->
 
       <div
         class="stat-card bg-white p-4 sm:p-5 rounded-xl shadow-md border-l-4 border-red-400 flex items-center justify-between"
@@ -500,9 +605,7 @@
 
         <div>
 
-          <p
-            class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider"
-          >
+          <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">
             Total Stock Cost
           </p>
 
@@ -519,16 +622,14 @@
 
         </div>
 
-        <div
-          class="p-2.5 bg-red-100 rounded-full text-red-500 text-lg sm:text-xl"
-        >
+
+        <div class="p-2.5 bg-red-100 rounded-full text-red-500 text-lg sm:text-xl">
           🛍️
         </div>
 
       </div>
 
 
-      <!-- PROFIT -->
 
       <div
         class="stat-card bg-white p-4 sm:p-5 rounded-xl shadow-md border-l-4 border-gold flex items-center justify-between"
@@ -536,9 +637,7 @@
 
         <div>
 
-          <p
-            class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider"
-          >
+          <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">
             Net Earned Profit
           </p>
 
@@ -555,15 +654,15 @@
 
         </div>
 
-        <div
-          class="p-2.5 bg-amber-100 rounded-full text-amber-700 text-lg sm:text-xl"
-        >
+
+        <div class="p-2.5 bg-amber-100 rounded-full text-amber-700 text-lg sm:text-xl">
           ✨
         </div>
 
       </div>
 
     </div>
+
 
 
     <!-- =====================================================
@@ -584,6 +683,7 @@
           <span>➕</span>
           Add New Transaction
         </h2>
+
 
         <span
           class="text-[10px] sm:text-xs bg-pink-100 text-burgundy px-2.5 py-1 rounded-full font-medium whitespace-nowrap"
@@ -628,6 +728,7 @@
         </div>
 
 
+
         <!-- DATE -->
 
         <div>
@@ -644,6 +745,7 @@
           >
 
         </div>
+
 
 
         <!-- CUSTOMER -->
@@ -664,6 +766,7 @@
         </div>
 
 
+
         <!-- PHONE -->
 
         <div id="phoneField">
@@ -680,6 +783,7 @@
           >
 
         </div>
+
 
 
         <!-- ADDRESS -->
@@ -703,6 +807,7 @@
         </div>
 
 
+
         <!-- PRODUCT -->
 
         <div>
@@ -720,6 +825,7 @@
           >
 
         </div>
+
 
 
         <!-- PRICE -->
@@ -746,6 +852,7 @@
         </div>
 
 
+
         <!-- COST -->
 
         <div id="costPriceField">
@@ -764,6 +871,7 @@
           >
 
         </div>
+
 
 
         <!-- QUANTITY -->
@@ -787,6 +895,7 @@
         </div>
 
 
+
         <!-- SHIPPING -->
 
         <div id="shippingField">
@@ -806,6 +915,7 @@
           >
 
         </div>
+
 
 
         <!-- BUTTON -->
@@ -835,6 +945,7 @@
     </div>
 
 
+
     <!-- =====================================================
          TRANSACTION LOG
     ====================================================== -->
@@ -853,6 +964,7 @@
           <span>📋</span>
           Transactions & Sales Log
         </h2>
+
 
         <button
           onclick="loadData()"
@@ -941,9 +1053,10 @@
   </main>
 
 
-  <!-- =======================================================
+
+  <!-- =====================================================
        INVOICE MODAL
-  ======================================================== -->
+  ====================================================== -->
 
   <div
     id="invoiceModal"
@@ -954,7 +1067,8 @@
       class="bg-white rounded-2xl max-w-xl w-full p-4 sm:p-6 shadow-2xl relative border-2 border-gold max-h-[95vh] overflow-y-auto"
     >
 
-      <!-- Close -->
+
+      <!-- CLOSE -->
 
       <button
         onclick="closeInvoiceModal()"
@@ -964,8 +1078,9 @@
       </button>
 
 
+
       <!-- ===================================================
-           PRINTABLE INVOICE
+           INVOICE
       ==================================================== -->
 
       <div
@@ -974,7 +1089,7 @@
       >
 
 
-        <!-- Banner -->
+        <!-- BANNER -->
 
         <div
           class="w-full rounded-xl overflow-hidden border border-gold shadow-sm max-h-36 mb-1"
@@ -990,7 +1105,8 @@
         </div>
 
 
-        <!-- Invoice Header -->
+
+        <!-- HEADER -->
 
         <div
           class="flex flex-row justify-between items-center border-b border-pink-200 pb-2 text-xs"
@@ -1002,7 +1118,7 @@
               id="invNoBadge"
               class="inline-block bg-pink-100 text-burgundy font-bold px-2.5 py-0.5 rounded-full border border-pink-200"
             >
-              # AC-000000
+              # AC-000001
             </span>
 
           </div>
@@ -1013,13 +1129,22 @@
           >
 
             <p>
+
               <strong>Date:</strong>
-              <span id="invDate">--</span>
+
+              <span id="invDate">
+                --
+              </span>
+
             </p>
 
+
             <p>
+
               <strong>Payment:</strong>
+
               Cash on Delivery
+
             </p>
 
           </div>
@@ -1027,22 +1152,34 @@
         </div>
 
 
-        <!-- Categories -->
+
+        <!-- CATEGORIES -->
 
         <div
           class="flex justify-center items-center gap-3 text-[10px] font-medium text-gray-600 border-b border-pink-100 pb-1.5"
         >
 
-          <span>Makeup</span>
+          <span>
+            Makeup
+          </span>
+
           •
-          <span>Skincare</span>
+
+          <span>
+            Skincare
+          </span>
+
           •
-          <span>Beauty Essentials</span>
+
+          <span>
+            Beauty Essentials
+          </span>
 
         </div>
 
 
-        <!-- Customer / Order -->
+
+        <!-- CUSTOMER -->
 
         <div
           class="grid grid-cols-2 gap-2 text-xs bg-white p-3 rounded-xl border border-pink-100 shadow-sm"
@@ -1056,31 +1193,44 @@
               👤 Bill To:
             </p>
 
+
             <p>
+
               <strong>Name:</strong>
+
               <span
                 id="invCustomer"
                 class="font-semibold text-gray-900"
               >
                 --
               </span>
+
             </p>
 
+
             <p>
+
               <strong>Phone:</strong>
+
               <span id="invPhone">
                 --
               </span>
+
             </p>
 
+
             <p>
+
               <strong>Address:</strong>
+
               <span id="invAddress">
                 --
               </span>
+
             </p>
 
           </div>
+
 
 
           <div>
@@ -1091,21 +1241,33 @@
               📦 Order Info:
             </p>
 
+
             <p>
+
               <strong>Order No:</strong>
+
               <span id="invOrderNo">
-                --
+                AC-000001
               </span>
+
             </p>
 
+
             <p>
+
               <strong>Status:</strong>
+
               Confirmed & Verified
+
             </p>
 
+
             <p>
+
               <strong>Shipping:</strong>
+
               Standard Delivery
+
             </p>
 
           </div>
@@ -1113,7 +1275,8 @@
         </div>
 
 
-        <!-- Product Table -->
+
+        <!-- PRODUCT TABLE -->
 
         <div class="overflow-x-auto">
 
@@ -1164,12 +1327,14 @@
                   1
                 </td>
 
+
                 <td
                   id="invProduct"
                   class="py-2 px-2 font-semibold text-gray-800"
                 >
                   --
                 </td>
+
 
                 <td
                   id="invQty"
@@ -1178,12 +1343,14 @@
                   --
                 </td>
 
+
                 <td
                   id="invUnitPrice"
                   class="py-2 px-2 text-right"
                 >
                   --
                 </td>
+
 
                 <td
                   id="invTotal"
@@ -1201,7 +1368,8 @@
         </div>
 
 
-        <!-- Summary -->
+
+        <!-- SUMMARY -->
 
         <div
           class="grid grid-cols-2 gap-2 items-end pt-1"
@@ -1217,6 +1385,7 @@
               ♡ A little note for you...
             </p>
 
+
             <p
               class="text-[10px] text-gray-600 mt-0.5 italic"
             >
@@ -1225,6 +1394,7 @@
             </p>
 
           </div>
+
 
 
           <div
@@ -1286,7 +1456,8 @@
         </div>
 
 
-        <!-- Footer -->
+
+        <!-- FOOTER -->
 
         <div
           class="border-t border-pink-200 pt-2.5 text-[11px] text-gray-700 flex justify-between items-center px-1"
@@ -1318,27 +1489,31 @@
       </div>
 
 
-      <!-- Invoice Actions -->
 
-      <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <!-- ===================================================
+           INVOICE ACTIONS
+           PRINT REMOVED
+      ==================================================== -->
+
+      <div
+        class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2"
+      >
 
         <button
-          onclick="shareNativeInvoiceFile()"
+          onclick="shareInvoicePDF()"
+          id="sharePdfBtn"
           class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2"
         >
-
-          📲 Share Invoice
-
+          📲 Share Invoice PDF
         </button>
 
 
         <button
-          onclick="printInvoice()"
-          class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold text-sm py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2"
+          onclick="downloadInvoicePDF()"
+          id="downloadPdfBtn"
+          class="w-full bg-burgundy hover:bg-[#741F34] text-white font-bold text-sm py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2"
         >
-
-          🖨️ Print Invoice
-
+          📄 Download Invoice PDF
         </button>
 
       </div>
@@ -1350,70 +1525,87 @@
 </div>
 
 
+
 <!-- =========================================================
      JAVASCRIPT
 ========================================================= -->
 
 <script>
 
+
 /* ============================================================
    CONFIGURATION
 ============================================================ */
-
-/*
- * YOUR GOOGLE APPS SCRIPT WEB APP
- */
 
 const SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbzO6iEjfTL19jjO7hq-ywRqc8BtWKiVSrPUnTmlXkEiKZeR1v7u8lyuVxHoM-ptk39h0Q/exec";
 
 
-/*
- * YOUR GOOGLE SHEET
- */
-
 const SHEET_ID =
   "181SCKxnCfYdsCC3RvdptwqkP--SIdv-NYNSf7upuRRc";
 
 
-/*
- * LOGIN
- */
+/* LOGIN */
 
 const LOGIN_EMAIL =
   "ibrahim@afsheencollection.pk";
+
 
 const LOGIN_PASSWORD =
   "Ibr@him1234**";
 
 
 /* ============================================================
-   GLOBAL DATA
+   DATA
 ============================================================ */
 
 let rawData = {
+
   records: [],
+
   tabs: []
+
 };
 
+
 let isLoading = false;
+
+
+/* Current invoice */
+
+let currentInvoiceData = null;
+
+
+/* ============================================================
+   ORDER SEQUENCE
+============================================================ */
+
+const ORDER_STORAGE_KEY =
+  "afsheen_collection_order_sequence_v1";
+
+
+const ORDER_MAP_KEY =
+  "afsheen_collection_order_map_v1";
 
 
 /* ============================================================
    INITIALIZATION
 ============================================================ */
 
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
 
-  setTodayDate();
+    setTodayDate();
 
-  toggleFields();
+    toggleFields();
 
-  document
-    .getElementById("pageLoader")
-    .classList.add("hidden");
+    document
+      .getElementById("pageLoader")
+      .classList.add("hidden");
 
-});
+  }
+);
 
 
 /* ============================================================
@@ -1424,6 +1616,7 @@ function handleLogin(e) {
 
   e.preventDefault();
 
+
   const email =
     document
       .getElementById("loginEmail")
@@ -1431,14 +1624,17 @@ function handleLogin(e) {
       .trim()
       .toLowerCase();
 
+
   const pass =
     document
       .getElementById("loginPassword")
       .value
       .trim();
 
+
   const errorBox =
     document.getElementById("loginError");
+
 
   const box =
     document.getElementById("loginBox");
@@ -1451,13 +1647,16 @@ function handleLogin(e) {
 
     errorBox.classList.add("hidden");
 
+
     document
       .getElementById("loginScreen")
       .classList.add("hidden");
 
+
     document
       .getElementById("dashboardWrapper")
       .classList.remove("hidden");
+
 
     setTodayDate();
 
@@ -1467,11 +1666,18 @@ function handleLogin(e) {
 
     errorBox.classList.remove("hidden");
 
-    box.classList.remove("animate-shake");
+
+    box.classList.remove(
+      "animate-shake"
+    );
+
 
     void box.offsetWidth;
 
-    box.classList.add("animate-shake");
+
+    box.classList.add(
+      "animate-shake"
+    );
 
   }
 
@@ -1485,17 +1691,26 @@ function handleLogin(e) {
 function logout() {
 
   rawData = {
+
     records: [],
+
     tabs: []
+
   };
+
+
+  currentInvoiceData = null;
+
 
   document
     .getElementById("dashboardWrapper")
     .classList.add("hidden");
 
+
   document
     .getElementById("loginScreen")
     .classList.remove("hidden");
+
 
   document
     .getElementById("loginPassword")
@@ -1505,7 +1720,7 @@ function logout() {
 
 
 /* ============================================================
-   DATE
+   TODAY
 ============================================================ */
 
 function setTodayDate() {
@@ -1513,21 +1728,285 @@ function setTodayDate() {
   const dateInput =
     document.getElementById("date");
 
-  if (!dateInput) return;
 
-  const now = new Date();
+  if (!dateInput) {
+    return;
+  }
+
+
+  const now =
+    new Date();
+
 
   const year =
     now.getFullYear();
 
+
   const month =
-    String(now.getMonth() + 1).padStart(2, "0");
+    String(
+      now.getMonth() + 1
+    ).padStart(2, "0");
+
 
   const day =
-    String(now.getDate()).padStart(2, "0");
+    String(
+      now.getDate()
+    ).padStart(2, "0");
+
 
   dateInput.value =
     `${year}-${month}-${day}`;
+
+}
+
+
+/* ============================================================
+   DATE PARSER
+============================================================ */
+
+function normalizeDateValue(value) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+
+    return null;
+
+  }
+
+
+  let str =
+    String(value).trim();
+
+
+  /*
+   * Remove time
+   */
+
+  str =
+    str.split("T")[0];
+
+
+  /*
+   * yyyy-mm-dd
+   */
+
+  if (
+    /^\d{4}-\d{1,2}-\d{1,2}$/.test(str)
+  ) {
+
+    const parts =
+      str.split("-");
+
+
+    return new Date(
+      Number(parts[0]),
+      Number(parts[1]) - 1,
+      Number(parts[2])
+    );
+
+  }
+
+
+  /*
+   * dd/mm/yyyy
+   */
+
+  if (
+    /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(str)
+  ) {
+
+    const parts =
+      str.split("/");
+
+
+    return new Date(
+      Number(parts[2]),
+      Number(parts[1]) - 1,
+      Number(parts[0])
+    );
+
+  }
+
+
+  /*
+   * dd-mm-yyyy
+   */
+
+  if (
+    /^\d{1,2}-\d{1,2}-\d{4}$/.test(str)
+  ) {
+
+    const parts =
+      str.split("-");
+
+
+    return new Date(
+      Number(parts[2]),
+      Number(parts[1]) - 1,
+      Number(parts[0])
+    );
+
+  }
+
+
+  /*
+   * Google Sheet date string
+   */
+
+  const parsed =
+    new Date(str);
+
+
+  if (
+    !isNaN(parsed.getTime())
+  ) {
+
+    return parsed;
+
+  }
+
+
+  return null;
+
+}
+
+
+/* ============================================================
+   CURRENT MONTH CHECK
+============================================================ */
+
+function isCurrentMonthRecord(row) {
+
+  if (!row) {
+    return false;
+  }
+
+
+  /*
+   * PRIMARY METHOD:
+   * Check actual transaction date.
+   */
+
+  const rowDate =
+    normalizeDateValue(row[0]);
+
+
+  const now =
+    new Date();
+
+
+  if (rowDate) {
+
+    return (
+      rowDate.getFullYear() ===
+        now.getFullYear() &&
+
+      rowDate.getMonth() ===
+        now.getMonth()
+    );
+
+  }
+
+
+  /*
+   * FALLBACK:
+   * Check Month / Tab column.
+   */
+
+  const monthValue =
+    String(
+      row[9] || ""
+    )
+    .trim()
+    .toLowerCase();
+
+
+  if (!monthValue) {
+    return false;
+  }
+
+
+  const monthNames = [
+
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december"
+
+  ];
+
+
+  const currentMonth =
+    monthNames[
+      now.getMonth()
+    ];
+
+
+  const shortMonth =
+    currentMonth.substring(
+      0,
+      3
+    );
+
+
+  const currentYear =
+    String(
+      now.getFullYear()
+    );
+
+
+  if (
+    monthValue ===
+    "current month"
+  ) {
+
+    return true;
+
+  }
+
+
+  if (
+    monthValue.includes(currentMonth) &&
+    monthValue.includes(currentYear)
+  ) {
+
+    return true;
+
+  }
+
+
+  if (
+    monthValue.includes(shortMonth) &&
+    monthValue.includes(currentYear)
+  ) {
+
+    return true;
+
+  }
+
+
+  if (
+    monthValue ===
+    `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+  ) {
+
+    return true;
+
+  }
+
+
+  return false;
 
 }
 
@@ -1538,31 +2017,33 @@ function setTodayDate() {
 
 function formatDateDisplay(dateVal) {
 
-  if (!dateVal) return "-";
+  if (!dateVal) {
+    return "-";
+  }
 
-  const clean =
-    String(dateVal)
-      .split("T")[0];
 
-  const parts =
-    clean.split("-");
+  const date =
+    normalizeDateValue(dateVal);
 
-  if (
-    parts.length === 3 &&
-    parts[2]
-  ) {
+
+  if (date) {
 
     return (
-      parts[2] +
+      String(
+        date.getDate()
+      ).padStart(2, "0") +
       "/" +
-      parts[1] +
+      String(
+        date.getMonth() + 1
+      ).padStart(2, "0") +
       "/" +
-      parts[0]
+      date.getFullYear()
     );
 
   }
 
-  return clean;
+
+  return String(dateVal);
 
 }
 
@@ -1577,27 +2058,51 @@ function escapeHtml(value) {
     value === null ||
     value === undefined
   ) {
+
     return "";
+
   }
 
+
   return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 
 }
 
 
 /* ============================================================
-   NUMBER FORMAT
+   MONEY
 ============================================================ */
 
 function money(value) {
 
   const number =
     Number(value) || 0;
+
 
   return number.toLocaleString(
     "en-PK",
@@ -1610,13 +2115,16 @@ function money(value) {
 
 
 /* ============================================================
-   TOGGLE SALE / PURCHASE FIELDS
+   TOGGLE FIELDS
 ============================================================ */
 
 function toggleFields() {
 
   const type =
-    document.getElementById("type").value;
+    document.getElementById(
+      "type"
+    ).value;
+
 
   const isSale =
     type === "sale";
@@ -1625,31 +2133,41 @@ function toggleFields() {
   document
     .getElementById("customerField")
     .style.display =
-    isSale ? "block" : "none";
+    isSale
+      ? "block"
+      : "none";
 
 
   document
     .getElementById("phoneField")
     .style.display =
-    isSale ? "block" : "none";
+    isSale
+      ? "block"
+      : "none";
 
 
   document
     .getElementById("addressField")
     .style.display =
-    isSale ? "block" : "none";
+    isSale
+      ? "block"
+      : "none";
 
 
   document
     .getElementById("shippingField")
     .style.display =
-    isSale ? "block" : "none";
+    isSale
+      ? "block"
+      : "none";
 
 
   document
     .getElementById("costPriceField")
     .style.display =
-    isSale ? "block" : "none";
+    isSale
+      ? "block"
+      : "none";
 
 
   document
@@ -1661,15 +2179,21 @@ function toggleFields() {
 
 
   const costInput =
-    document.getElementById("costPrice");
+    document.getElementById(
+      "costPrice"
+    );
+
 
   if (isSale) {
 
-    costInput.removeAttribute("disabled");
+    costInput.removeAttribute(
+      "disabled"
+    );
 
   } else {
 
-    costInput.value = "0";
+    costInput.value =
+      "0";
 
   }
 
@@ -1690,20 +2214,31 @@ function setConnectionStatus(
       "connectionStatus"
     );
 
-  if (!el) return;
+
+  if (!el) {
+    return;
+  }
 
 
-  if (type === "success") {
+  if (
+    type === "success"
+  ) {
 
     el.innerHTML =
       '<span class="text-green-600 font-semibold">● Connected to Google Sheet</span>';
 
-  } else if (type === "error") {
+  }
+
+  else if (
+    type === "error"
+  ) {
 
     el.innerHTML =
       '<span class="text-red-600 font-semibold">● Connection Error</span>';
 
-  } else {
+  }
+
+  else {
 
     el.innerHTML =
       '<span class="text-amber-600 font-semibold">● Connecting...</span>';
@@ -1719,9 +2254,13 @@ function setConnectionStatus(
 
 function loadData() {
 
-  if (isLoading) return;
+  if (isLoading) {
+    return;
+  }
 
-  isLoading = true;
+
+  isLoading =
+    true;
 
 
   const table =
@@ -1744,7 +2283,9 @@ function loadData() {
 
   if (refreshBtn) {
 
-    refreshBtn.disabled = true;
+    refreshBtn.disabled =
+      true;
+
 
     refreshBtn.innerText =
       "⏳ Loading...";
@@ -1753,102 +2294,71 @@ function loadData() {
 
 
   table.innerHTML = `
+
     <tr>
+
       <td
         colspan="8"
         class="p-5 text-center text-gray-500"
       >
+
         <div class="flex justify-center items-center gap-2">
-          <div class="loading-spin"
-               style="border-color:#e5bfc8;border-top-color:#8B263E;">
+
+          <div
+            class="loading-spin"
+            style="border-color:#e5bfc8;border-top-color:#8B263E;"
+          >
           </div>
-          <span>Syncing Google Sheet...</span>
+
+          <span>
+            Syncing Google Sheet...
+          </span>
+
         </div>
+
       </td>
+
     </tr>
+
   `;
 
-
-  /*
-   * Remove previous JSONP script
-   */
 
   const oldScript =
     document.getElementById(
       "jsonpScript"
     );
 
+
   if (oldScript) {
     oldScript.remove();
   }
 
-
-  /*
-   * Unique callback
-   */
 
   const callbackName =
     "handleScriptResponse_" +
     Date.now();
 
 
-  /*
-   * Global callback
-   */
+  let callbackFinished =
+    false;
 
-  window[callbackName] =
-    function(data) {
 
-      try {
-
-        rawData = data || {
-          records: [],
-          tabs: []
-        };
-
+  const timeout =
+    setTimeout(
+      function() {
 
         if (
-          !rawData.records
+          callbackFinished
         ) {
 
-          rawData.records = [];
+          return;
 
         }
 
 
-        if (
-          !rawData.tabs
-        ) {
+        isLoading =
+          false;
 
-          rawData.tabs = [];
-
-        }
-
-
-        populateMonths();
-
-        filterData();
-
-        setConnectionStatus(
-          "Connected",
-          "success"
-        );
-
-
-      } catch (error) {
-
-        console.error(
-          "Data processing error:",
-          error
-        );
-
-        showLoadError(
-          "Data received but could not be processed."
-        );
-
-      } finally {
-
-        isLoading = false;
 
         if (refreshBtn) {
 
@@ -1860,8 +2370,140 @@ function loadData() {
 
         }
 
+
+        setConnectionStatus(
+          "Connection Timeout",
+          "error"
+        );
+
+
+        showLoadError(
+          "Google Sheet took too long to respond. Please refresh."
+        );
+
+
         try {
-          delete window[callbackName];
+
+          delete window[
+            callbackName
+          ];
+
+        } catch (e) {}
+
+      },
+      30000
+    );
+
+
+  window[
+    callbackName
+  ] =
+    function(data) {
+
+      callbackFinished =
+        true;
+
+
+      clearTimeout(
+        timeout
+      );
+
+
+      try {
+
+        rawData =
+          data || {
+
+            records: [],
+
+            tabs: []
+
+          };
+
+
+        if (
+          !Array.isArray(
+            rawData.records
+          )
+        ) {
+
+          rawData.records =
+            [];
+
+        }
+
+
+        if (
+          !Array.isArray(
+            rawData.tabs
+          )
+        ) {
+
+          rawData.tabs =
+            [];
+
+        }
+
+
+        /*
+         * Build / repair order mapping
+         */
+
+        syncExistingOrderNumbers();
+
+
+        populateMonths();
+
+
+        filterData();
+
+
+        setConnectionStatus(
+          "Connected",
+          "success"
+        );
+
+      }
+
+
+      catch (error) {
+
+        console.error(
+          "Data processing error:",
+          error
+        );
+
+
+        showLoadError(
+          "Data received but could not be processed."
+        );
+
+      }
+
+
+      finally {
+
+        isLoading =
+          false;
+
+
+        if (refreshBtn) {
+
+          refreshBtn.disabled =
+            false;
+
+          refreshBtn.innerText =
+            "🔄 Refresh";
+
+        }
+
+
+        try {
+
+          delete window[
+            callbackName
+          ];
+
         } catch (e) {}
 
       }
@@ -1869,12 +2511,10 @@ function loadData() {
     };
 
 
-  /*
-   * JSONP URL
-   */
-
   const script =
-    document.createElement("script");
+    document.createElement(
+      "script"
+    );
 
 
   script.id =
@@ -1885,22 +2525,32 @@ function loadData() {
     SCRIPT_URL +
     "?action=getData" +
     "&callback=" +
-    encodeURIComponent(callbackName) +
+    encodeURIComponent(
+      callbackName
+    ) +
     "&ts=" +
     Date.now();
 
 
-  script.async = true;
+  script.async =
+    true;
 
-
-  /*
-   * Error
-   */
 
   script.onerror =
     function() {
 
-      isLoading = false;
+      callbackFinished =
+        true;
+
+
+      clearTimeout(
+        timeout
+      );
+
+
+      isLoading =
+        false;
+
 
       if (refreshBtn) {
 
@@ -1911,6 +2561,7 @@ function loadData() {
           "🔄 Refresh";
 
       }
+
 
       setConnectionStatus(
         "Connection Error",
@@ -1924,61 +2575,12 @@ function loadData() {
 
 
       try {
-        delete window[callbackName];
+
+        delete window[
+          callbackName
+        ];
+
       } catch (e) {}
-
-    };
-
-
-  /*
-   * Timeout
-   */
-
-  const timeout =
-    setTimeout(
-      function() {
-
-        if (!isLoading) return;
-
-        isLoading = false;
-
-        if (refreshBtn) {
-
-          refreshBtn.disabled =
-            false;
-
-          refreshBtn.innerText =
-            "🔄 Refresh";
-
-        }
-
-        setConnectionStatus(
-          "Connection Timeout",
-          "error"
-        );
-
-        showLoadError(
-          "Google Sheet took too long to respond. Please refresh."
-        );
-
-      },
-      30000
-    );
-
-
-  /*
-   * Clear timeout when callback arrives
-   */
-
-  const oldCallback =
-    window[callbackName];
-
-  window[callbackName] =
-    function(data) {
-
-      clearTimeout(timeout);
-
-      oldCallback(data);
 
     };
 
@@ -2001,8 +2603,11 @@ function showLoadError(message) {
       "salesTable"
     );
 
+
   table.innerHTML = `
+
     <tr>
+
       <td
         colspan="8"
         class="p-5 text-center"
@@ -2018,20 +2623,177 @@ function showLoadError(message) {
 
         <button
           onclick="loadData()"
-          class="mt-3 bg-burgundy text-white bg-[#8B263E] px-4 py-2 rounded-lg text-xs font-bold"
+          class="mt-3 bg-[#8B263E] text-white px-4 py-2 rounded-lg text-xs font-bold"
         >
           🔄 Try Again
         </button>
 
       </td>
+
     </tr>
+
   `;
 
 }
 
 
 /* ============================================================
-   POPULATE MONTH / TAB FILTER
+   TAB LABEL HELPERS
+============================================================ */
+
+function getMonthLabelFromDate(dateValue) {
+
+  const date =
+    normalizeDateValue(
+      dateValue
+    );
+
+
+  if (!date) {
+    return "";
+  }
+
+
+  return date.toLocaleString(
+    "en-US",
+    {
+      month: "long",
+      year: "numeric"
+    }
+  );
+
+}
+
+
+/* ============================================================
+   MATCH TAB
+============================================================ */
+
+function rowBelongsToTab(
+  row,
+  selectedTab
+) {
+
+  if (
+    selectedTab ===
+    "Current Month"
+  ) {
+
+    return isCurrentMonthRecord(
+      row
+    );
+
+  }
+
+
+  if (
+    selectedTab ===
+    "All"
+  ) {
+
+    return true;
+
+  }
+
+
+  const rowTab =
+    String(
+      row[9] || ""
+    )
+    .trim()
+    .toLowerCase();
+
+
+  const selected =
+    String(
+      selectedTab || ""
+    )
+    .trim()
+    .toLowerCase();
+
+
+  if (
+    rowTab ===
+    selected
+  ) {
+
+    return true;
+
+  }
+
+
+  /*
+   * Also match actual date month.
+   */
+
+  const dateMonth =
+    getMonthLabelFromDate(
+      row[0]
+    )
+    .toLowerCase();
+
+
+  if (
+    dateMonth ===
+    selected
+  ) {
+
+    return true;
+
+  }
+
+
+  /*
+   * Short month matching.
+   */
+
+  const date =
+    normalizeDateValue(
+      row[0]
+    );
+
+
+  if (date) {
+
+    const shortMonth =
+      date.toLocaleString(
+        "en-US",
+        {
+          month: "short"
+        }
+      )
+      .toLowerCase();
+
+
+    const year =
+      String(
+        date.getFullYear()
+      );
+
+
+    if (
+      selected.includes(
+        shortMonth
+      ) &&
+      selected.includes(
+        year
+      )
+    ) {
+
+      return true;
+
+    }
+
+  }
+
+
+  return false;
+
+}
+
+
+/* ============================================================
+   POPULATE MONTHS
 ============================================================ */
 
 function populateMonths() {
@@ -2046,17 +2808,13 @@ function populateMonths() {
     new Set();
 
 
-  /*
-   * Always Current Month
-   */
-
   tabs.add(
     "Current Month"
   );
 
 
   /*
-   * Backend supplied tabs
+   * Backend tabs
    */
 
   if (
@@ -2086,12 +2844,13 @@ function populateMonths() {
 
 
   /*
-   * Also detect Month column
+   * Detect months from dates
    */
 
   if (
-    rawData.records &&
-    rawData.records.length > 1
+    Array.isArray(
+      rawData.records
+    )
   ) {
 
     rawData.records
@@ -2099,16 +2858,31 @@ function populateMonths() {
       .forEach(
         function(row) {
 
-          const month =
-            row[9];
+          const dateMonth =
+            getMonthLabelFromDate(
+              row[0]
+            );
 
-          if (
-            month &&
-            String(month).trim()
-          ) {
+
+          if (dateMonth) {
 
             tabs.add(
-              String(month).trim()
+              dateMonth
+            );
+
+          }
+
+
+          const backendMonth =
+            String(
+              row[9] || ""
+            ).trim();
+
+
+          if (backendMonth) {
+
+            tabs.add(
+              backendMonth
             );
 
           }
@@ -2123,7 +2897,8 @@ function populateMonths() {
     filter.value;
 
 
-  filter.innerHTML = "";
+  filter.innerHTML =
+    "";
 
 
   tabs.forEach(
@@ -2134,12 +2909,20 @@ function populateMonths() {
           "option"
         );
 
-      option.value = tab;
+
+      option.value =
+        tab;
+
 
       option.textContent =
-        tab === "Current Month"
+        tab ===
+        "Current Month"
+
           ? "📅 Current Month (Active)"
-          : "📂 " + tab;
+
+          : "📂 " +
+            tab;
+
 
       filter.appendChild(
         option
@@ -2149,42 +2932,39 @@ function populateMonths() {
   );
 
 
-  /*
-   * All sheets
-   */
-
   const allOption =
     document.createElement(
       "option"
     );
 
+
   allOption.value =
     "All";
 
+
   allOption.textContent =
     "📊 All Sheets Summary";
+
 
   filter.appendChild(
     allOption
   );
 
 
-  /*
-   * Restore previous
-   */
-
   if (
     previous &&
     (
-      tabs.has(previous) ||
-      previous === "All"
+      previous === "All" ||
+      tabs.has(previous)
     )
   ) {
 
     filter.value =
       previous;
 
-  } else {
+  }
+
+  else {
 
     filter.value =
       "Current Month";
@@ -2206,43 +2986,82 @@ function filterData() {
     ).value;
 
 
-  let records = [];
+  let records =
+    Array.isArray(
+      rawData.records
+    )
+      ? rawData.records.slice()
+      : [];
 
+
+  /*
+   * Remove header ONLY if first row
+   * actually looks like a header.
+   */
 
   if (
-    rawData.records &&
-    rawData.records.length > 1
+    records.length
   ) {
 
-    records =
-      rawData.records.slice(1);
+    const first =
+      records[0];
+
+
+    const firstType =
+      String(
+        first?.[1] || ""
+      )
+      .trim()
+      .toLowerCase();
+
+
+    const firstDate =
+      String(
+        first?.[0] || ""
+      )
+      .trim()
+      .toLowerCase();
+
+
+    const looksLikeHeader =
+      firstType === "type" ||
+      firstDate === "date" ||
+      firstDate === "order date" ||
+      String(
+        first?.[2] || ""
+      )
+      .trim()
+      .toLowerCase() ===
+      "customer";
+
+
+    if (
+      looksLikeHeader
+    ) {
+
+      records.shift();
+
+    }
 
   }
 
 
   /*
-   * Filter selected tab
+   * Selected tab
    */
 
   if (
-    selectedTab !== "All"
+    selectedTab !==
+    "All"
   ) {
 
     records =
       records.filter(
         function(row) {
 
-          const rowTab =
-            row[9]
-              ? String(row[9]).trim()
-              : "Current Month";
-
-
-          return (
-            rowTab.toLowerCase() ===
+          return rowBelongsToTab(
+            row,
             selectedTab
-              .trim()
-              .toLowerCase()
           );
 
         }
@@ -2252,7 +3071,34 @@ function filterData() {
 
 
   /*
-   * Sales
+   * Remove completely empty rows
+   */
+
+  records =
+    records.filter(
+      function(row) {
+
+        return (
+          Array.isArray(row) &&
+          row.some(
+            function(cell) {
+
+              return (
+                cell !== null &&
+                cell !== undefined &&
+                String(cell).trim() !== ""
+              );
+
+            }
+          )
+        );
+
+      }
+    );
+
+
+  /*
+   * SALES
    */
 
   const salesRecords =
@@ -2261,11 +3107,16 @@ function filterData() {
 
         const type =
           String(
-            row[1] || "Sale"
-          ).toLowerCase();
+            row[1] || "sale"
+          )
+          .trim()
+          .toLowerCase();
+
 
         return (
           type === "sale" ||
+          type === "sales" ||
+          type === "customer sale order" ||
           type === ""
         );
 
@@ -2274,18 +3125,25 @@ function filterData() {
 
 
   /*
-   * Purchases
+   * PURCHASES
    */
 
   const purchaseRecords =
     records.filter(
       function(row) {
 
-        return (
+        const type =
           String(
             row[1] || ""
-          ).toLowerCase() ===
-          "purchase"
+          )
+          .trim()
+          .toLowerCase();
+
+
+        return (
+          type === "purchase" ||
+          type === "inventory purchase" ||
+          type === "inventory purchase (stock)"
         );
 
       }
@@ -2293,7 +3151,7 @@ function filterData() {
 
 
   /*
-   * KPI
+   * TOTAL SALES
    */
 
   const totalSales =
@@ -2302,13 +3160,21 @@ function filterData() {
 
         return (
           total +
-          (Number(row[6]) || 0)
+          (
+            Number(
+              row[6]
+            ) || 0
+          )
         );
 
       },
       0
     );
 
+
+  /*
+   * TOTAL PURCHASE
+   */
 
   const totalPurchase =
     purchaseRecords.reduce(
@@ -2316,13 +3182,21 @@ function filterData() {
 
         return (
           total +
-          (Number(row[6]) || 0)
+          (
+            Number(
+              row[6]
+            ) || 0
+          )
         );
 
       },
       0
     );
 
+
+  /*
+   * PROFIT
+   */
 
   const netProfit =
     salesRecords.reduce(
@@ -2330,7 +3204,11 @@ function filterData() {
 
         return (
           total +
-          (Number(row[8]) || 0)
+          (
+            Number(
+              row[8]
+            ) || 0
+          )
         );
 
       },
@@ -2339,25 +3217,40 @@ function filterData() {
 
 
   /*
-   * Update KPI
+   * KPI
    */
 
   document
-    .getElementById("totalSales")
+    .getElementById(
+      "totalSales"
+    )
     .innerText =
-    "Rs. " + money(totalSales);
+    "Rs. " +
+    money(
+      totalSales
+    );
 
 
   document
-    .getElementById("totalPurchase")
+    .getElementById(
+      "totalPurchase"
+    )
     .innerText =
-    "Rs. " + money(totalPurchase);
+    "Rs. " +
+    money(
+      totalPurchase
+    );
 
 
   document
-    .getElementById("netProfit")
+    .getElementById(
+      "netProfit"
+    )
     .innerText =
-    "Rs. " + money(netProfit);
+    "Rs. " +
+    money(
+      netProfit
+    );
 
 
   /*
@@ -2365,7 +3258,9 @@ function filterData() {
    */
 
   document
-    .getElementById("recordCount")
+    .getElementById(
+      "recordCount"
+    )
     .innerText =
     records.length +
     (
@@ -2375,11 +3270,481 @@ function filterData() {
     );
 
 
+  renderTable(
+    records
+  );
+
+}
+
+
+/* ============================================================
+   ORDER MAP
+============================================================ */
+
+function getOrderMap() {
+
+  try {
+
+    const saved =
+      localStorage.getItem(
+        ORDER_MAP_KEY
+      );
+
+
+    if (
+      saved
+    ) {
+
+      const parsed =
+        JSON.parse(
+          saved
+        );
+
+
+      if (
+        parsed &&
+        typeof parsed ===
+        "object"
+      ) {
+
+        return parsed;
+
+      }
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.warn(
+      "Order map read failed",
+      error
+    );
+
+  }
+
+
+  return {};
+
+}
+
+
+/* ============================================================
+   SAVE ORDER MAP
+============================================================ */
+
+function saveOrderMap(
+  map
+) {
+
+  try {
+
+    localStorage.setItem(
+      ORDER_MAP_KEY,
+      JSON.stringify(
+        map
+      )
+    );
+
+  }
+
+  catch (error) {
+
+    console.warn(
+      "Order map save failed",
+      error
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   ROW FINGERPRINT
+============================================================ */
+
+function rowFingerprint(
+  row
+) {
+
+  if (
+    !Array.isArray(row)
+  ) {
+
+    return "";
+
+  }
+
+
+  return row
+    .slice(
+      0,
+      13
+    )
+    .map(
+      function(value) {
+
+        return String(
+          value ?? ""
+        )
+        .trim();
+
+      }
+    )
+    .join("||");
+
+}
+
+
+/* ============================================================
+   FIND ORDER NUMBER IN ROW
+============================================================ */
+
+function findOrderNumberInRow(
+  row
+) {
+
+  if (
+    !Array.isArray(row)
+  ) {
+
+    return "";
+
+  }
+
+
   /*
-   * Render table
+   * Check every cell for AC-000001
    */
 
-  renderTable(records);
+  for (
+    let i = 0;
+    i < row.length;
+    i++
+  ) {
+
+    const value =
+      String(
+        row[i] || ""
+      )
+      .trim();
+
+
+    const match =
+      value.match(
+        /\bAC-(\d+)\b/i
+      );
+
+
+    if (
+      match
+    ) {
+
+      return (
+        "AC-" +
+        String(
+          Number(
+            match[1]
+          )
+        )
+        .padStart(
+          6,
+          "0"
+        )
+      );
+
+    }
+
+  }
+
+
+  return "";
+
+}
+
+
+/* ============================================================
+   GET NEXT ORDER NUMBER
+============================================================ */
+
+function getNextOrderNumber() {
+
+  let maxNumber =
+    0;
+
+
+  /*
+   * Existing Sheet numbers
+   */
+
+  if (
+    Array.isArray(
+      rawData.records
+    )
+  ) {
+
+    rawData.records.forEach(
+      function(row) {
+
+        const existing =
+          findOrderNumberInRow(
+            row
+          );
+
+
+        if (
+          existing
+        ) {
+
+          const num =
+            Number(
+              existing.replace(
+                "AC-",
+                ""
+              )
+            );
+
+
+          if (
+            num >
+            maxNumber
+          ) {
+
+            maxNumber =
+              num;
+
+          }
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /*
+   * Local storage sequence
+   */
+
+  try {
+
+    const local =
+      Number(
+        localStorage.getItem(
+          ORDER_STORAGE_KEY
+        )
+      ) || 0;
+
+
+    if (
+      local >
+      maxNumber
+    ) {
+
+      maxNumber =
+        local;
+
+    }
+
+  }
+
+  catch (error) {}
+
+
+  const next =
+    maxNumber + 1;
+
+
+  try {
+
+    localStorage.setItem(
+      ORDER_STORAGE_KEY,
+      String(next)
+    );
+
+  }
+
+  catch (error) {}
+
+
+  return (
+    "AC-" +
+    String(
+      next
+    )
+    .padStart(
+      6,
+      "0"
+    )
+  );
+
+}
+
+
+/* ============================================================
+   SYNC EXISTING ORDER NUMBERS
+============================================================ */
+
+function syncExistingOrderNumbers() {
+
+  const map =
+    getOrderMap();
+
+
+  let highest =
+    Number(
+      localStorage.getItem(
+        ORDER_STORAGE_KEY
+      )
+    ) || 0;
+
+
+  if (
+    Array.isArray(
+      rawData.records
+    )
+  ) {
+
+    rawData.records.forEach(
+      function(row) {
+
+        const existing =
+          findOrderNumberInRow(
+            row
+          );
+
+
+        if (
+          existing
+        ) {
+
+          map[
+            rowFingerprint(
+              row
+            )
+          ] =
+            existing;
+
+
+          const num =
+            Number(
+              existing.replace(
+                "AC-",
+                ""
+              )
+            );
+
+
+          if (
+            num >
+            highest
+          ) {
+
+            highest =
+              num;
+
+          }
+
+        }
+
+      }
+    );
+
+  }
+
+
+  try {
+
+    localStorage.setItem(
+      ORDER_STORAGE_KEY,
+      String(
+        highest
+      )
+    );
+
+  }
+
+  catch (error) {}
+
+
+  saveOrderMap(
+    map
+  );
+
+}
+
+
+/* ============================================================
+   GET ORDER NUMBER FOR ROW
+============================================================ */
+
+function getOrderNumberForRow(
+  row
+) {
+
+  /*
+   * First check actual Sheet value
+   */
+
+  const sheetOrder =
+    findOrderNumberInRow(
+      row
+    );
+
+
+  if (
+    sheetOrder
+  ) {
+
+    return sheetOrder;
+
+  }
+
+
+  /*
+   * Then local mapping
+   */
+
+  const map =
+    getOrderMap();
+
+
+  const key =
+    rowFingerprint(
+      row
+    );
+
+
+  if (
+    map[key]
+  ) {
+
+    return map[key];
+
+  }
+
+
+  /*
+   * New sequential number
+   */
+
+  const newOrder =
+    getNextOrderNumber();
+
+
+  map[key] =
+    newOrder;
+
+
+  saveOrderMap(
+    map
+  );
+
+
+  return newOrder;
 
 }
 
@@ -2388,7 +3753,9 @@ function filterData() {
    RENDER TABLE
 ============================================================ */
 
-function renderTable(records) {
+function renderTable(
+  records
+) {
 
   const table =
     document.getElementById(
@@ -2396,7 +3763,8 @@ function renderTable(records) {
     );
 
 
-  table.innerHTML = "";
+  table.innerHTML =
+    "";
 
 
   if (
@@ -2404,15 +3772,20 @@ function renderTable(records) {
   ) {
 
     table.innerHTML = `
+
       <tr>
+
         <td
           colspan="8"
           class="p-5 text-center text-gray-400"
         >
           No records found for this selection.
         </td>
+
       </tr>
+
     `;
+
 
     return;
 
@@ -2421,16 +3794,16 @@ function renderTable(records) {
 
   /*
    * Latest first
-   *
-   * Only display 50 to keep
-   * frontend fast.
    */
 
   const visibleRecords =
     records
       .slice()
       .reverse()
-      .slice(0, 50);
+      .slice(
+        0,
+        50
+      );
 
 
   visibleRecords.forEach(
@@ -2443,13 +3816,24 @@ function renderTable(records) {
 
 
       const type =
-        row[1] || "Sale";
+        row[1] ||
+        "Sale";
+
+
+      const normalizedType =
+        String(
+          type
+        )
+        .toLowerCase();
 
 
       const isSale =
-        String(type)
-          .toLowerCase() ===
-        "sale";
+        normalizedType ===
+        "sale" ||
+        normalizedType ===
+        "sales" ||
+        normalizedType ===
+        "customer sale order";
 
 
       const customer =
@@ -2463,22 +3847,31 @@ function renderTable(records) {
 
 
       const price =
-        Number(row[4]) || 0;
+        Number(
+          row[4]
+        ) || 0;
 
 
       const qty =
-        Number(row[5]) || 1;
+        Number(
+          row[5]
+        ) || 1;
 
 
       const total =
-        Number(row[6]) ||
+        Number(
+          row[6]
+        ) ||
         (
-          price * qty
+          price *
+          qty
         );
 
 
       const profit =
-        Number(row[8]) || 0;
+        Number(
+          row[8]
+        ) || 0;
 
 
       const phone =
@@ -2492,12 +3885,18 @@ function renderTable(records) {
 
 
       const shipping =
-        Number(row[12]) || 0;
+        Number(
+          row[12]
+        ) || 0;
 
 
-      /*
-       * Create row safely
-       */
+      const orderNo =
+        isSale
+          ? getOrderNumberForRow(
+              row
+            )
+          : "";
+
 
       const tr =
         document.createElement(
@@ -2517,7 +3916,9 @@ function renderTable(records) {
 
       const profitClass =
         !isSale
+
           ? "text-gray-400"
+
           : (
               profit >= 0
                 ? "text-green-600"
@@ -2531,6 +3932,7 @@ function renderTable(records) {
           ${escapeHtml(displayDate)}
         </td>
 
+
         <td class="p-2.5">
 
           <span
@@ -2540,6 +3942,7 @@ function renderTable(records) {
           </span>
 
         </td>
+
 
         <td class="p-2.5">
 
@@ -2559,43 +3962,54 @@ function renderTable(records) {
 
         </td>
 
+
         <td class="p-2.5 text-gray-700">
           ${escapeHtml(product)}
         </td>
+
 
         <td class="p-2.5 text-gray-600">
           ${qty}
         </td>
 
+
         <td class="p-2.5 font-bold text-gray-800">
           Rs. ${money(total)}
         </td>
 
-        <td
-          class="p-2.5 font-bold ${profitClass}"
-        >
+
+        <td class="p-2.5 font-bold ${profitClass}">
+
           ${
             isSale
               ? "Rs. " + money(profit)
               : "-"
           }
+
         </td>
+
 
         <td class="p-2.5">
 
           ${
             isSale
+
               ? `
+
                 <button
                   class="invoice-btn bg-pink-100 hover:bg-pink-200 text-burgundy text-xs px-2.5 py-1 rounded-md font-bold shadow-sm transition"
                 >
                   🧾 Invoice
                 </button>
+
               `
+
               : `
+
                 <span class="text-xs text-gray-400">
                   Stock In
                 </span>
+
               `
           }
 
@@ -2605,10 +4019,12 @@ function renderTable(records) {
 
 
       /*
-       * Invoice button event
+       * Invoice
        */
 
-      if (isSale) {
+      if (
+        isSale
+      ) {
 
         const invoiceBtn =
           tr.querySelector(
@@ -2628,7 +4044,8 @@ function renderTable(records) {
               price,
               shipping,
               phone,
-              address
+              address,
+              orderNo
             );
 
           }
@@ -2637,15 +4054,13 @@ function renderTable(records) {
       }
 
 
-      table.appendChild(tr);
+      table.appendChild(
+        tr
+      );
 
     }
   );
 
-
-  /*
-   * More records message
-   */
 
   if (
     records.length > 50
@@ -2658,6 +4073,7 @@ function renderTable(records) {
 
 
     moreRow.innerHTML = `
+
       <td
         colspan="8"
         class="p-3 text-center text-gray-400 text-xs"
@@ -2665,6 +4081,7 @@ function renderTable(records) {
         Showing latest 50 records.
         Total records: ${records.length}
       </td>
+
     `;
 
 
@@ -2698,14 +4115,14 @@ async function submitData(e) {
     );
 
 
-  if (btn.disabled) {
+  if (
+    btn.disabled
+  ) {
+
     return;
+
   }
 
-
-  /*
-   * Get values
-   */
 
   const type =
     document.getElementById(
@@ -2752,7 +4169,8 @@ async function submitData(e) {
   const costPrice =
     document.getElementById(
       "costPrice"
-    ).value || 0;
+    ).value ||
+    0;
 
 
   const quantity =
@@ -2764,11 +4182,12 @@ async function submitData(e) {
   const shipping =
     document.getElementById(
       "shipping"
-    ).value || 0;
+    ).value ||
+    0;
 
 
   /*
-   * Basic validation
+   * Validation
    */
 
   if (!date) {
@@ -2794,7 +4213,7 @@ async function submitData(e) {
 
 
   if (
-    !price ||
+    price === "" ||
     Number(price) < 0
   ) {
 
@@ -2836,14 +4255,27 @@ async function submitData(e) {
 
 
   /*
-   * Payload
+   * Generate sequential order number
+   *
+   * Only sales receive an order number.
    */
+
+  const orderNo =
+    type === "sale"
+      ? getNextOrderNumber()
+      : "";
+
 
   const payload = {
 
-    type: type,
+    type:
+      type,
 
-    date: date,
+    date:
+      date,
+
+    orderNo:
+      orderNo,
 
     customer:
       customer || "-",
@@ -2873,10 +4305,12 @@ async function submitData(e) {
 
 
   /*
-   * Button loading
+   * Save button state
    */
 
-  btn.disabled = true;
+  btn.disabled =
+    true;
+
 
   btn.classList.add(
     "opacity-70",
@@ -2890,37 +4324,32 @@ async function submitData(e) {
 
   try {
 
-    /*
-     * IMPORTANT:
-     *
-     * no-cors removed.
-     *
-     * text/plain avoids CORS
-     * preflight with Apps Script.
-     */
-
     const response =
       await fetch(
         SCRIPT_URL,
         {
-          method: "POST",
+
+          method:
+            "POST",
 
           headers: {
+
             "Content-Type":
               "text/plain;charset=utf-8"
+
           },
 
           body:
-            JSON.stringify(payload)
+            JSON.stringify(
+              payload
+            )
+
         }
       );
 
 
-    /*
-     * Apps Script response
-     */
-
-    let result = null;
+    let result =
+      null;
 
 
     try {
@@ -2928,19 +4357,20 @@ async function submitData(e) {
       result =
         await response.json();
 
-    } catch (jsonError) {
+    }
+
+    catch (jsonError) {
 
       /*
-       * Some Apps Script
-       * deployments may return
-       * an unreadable response.
-       *
-       * The request itself can
-       * still have succeeded.
+       * Apps Script may save successfully
+       * but return an unreadable response.
        */
 
       result = {
-        status: "success"
+
+        status:
+          "success"
+
       };
 
     }
@@ -2948,7 +4378,8 @@ async function submitData(e) {
 
     if (
       result &&
-      result.status === "error"
+      result.status ===
+      "error"
     ) {
 
       throw new Error(
@@ -2960,16 +4391,62 @@ async function submitData(e) {
 
 
     /*
-     * Success
+     * Store sequence
      */
 
+    if (
+      orderNo
+    ) {
+
+      const number =
+        Number(
+          orderNo.replace(
+            "AC-",
+            ""
+          )
+        );
+
+
+      try {
+
+        const current =
+          Number(
+            localStorage.getItem(
+              ORDER_STORAGE_KEY
+            )
+          ) || 0;
+
+
+        if (
+          number >
+          current
+        ) {
+
+          localStorage.setItem(
+            ORDER_STORAGE_KEY,
+            String(
+              number
+            )
+          );
+
+        }
+
+      }
+
+      catch (error) {}
+
+    }
+
+
     alert(
-      "✅ Entry Saved Successfully!"
+      type === "sale"
+        ? "✅ Order Saved Successfully!\n\nOrder No: " + orderNo
+        : "✅ Stock Entry Saved Successfully!"
     );
 
 
     /*
-     * Reset form
+     * Reset
      */
 
     document
@@ -2985,7 +4462,7 @@ async function submitData(e) {
 
 
     /*
-     * Reload data immediately
+     * Reload
      */
 
     await new Promise(
@@ -2993,7 +4470,7 @@ async function submitData(e) {
 
         setTimeout(
           resolve,
-          250
+          300
         );
 
       }
@@ -3002,8 +4479,10 @@ async function submitData(e) {
 
     loadData();
 
+  }
 
-  } catch (error) {
+
+  catch (error) {
 
     console.error(
       "Save error:",
@@ -3016,15 +4495,20 @@ async function submitData(e) {
       error.message
     );
 
+  }
 
-  } finally {
 
-    btn.disabled = false;
+  finally {
+
+    btn.disabled =
+      false;
+
 
     btn.classList.remove(
       "opacity-70",
       "cursor-not-allowed"
     );
+
 
     btnText.innerText =
       "Save Entry to Sheet";
@@ -3035,7 +4519,7 @@ async function submitData(e) {
 
 
 /* ============================================================
-   INVOICE
+   OPEN INVOICE
 ============================================================ */
 
 function openInvoiceModal(
@@ -3046,7 +4530,8 @@ function openInvoiceModal(
   price,
   shipping,
   phone,
-  address
+  address,
+  orderNo
 ) {
 
 
@@ -3072,17 +4557,80 @@ function openInvoiceModal(
     shippingAmount;
 
 
+  const finalOrderNo =
+    orderNo ||
+    getNextOrderNumber();
+
+
   /*
-   * Customer
+   * Save current invoice
    */
+
+  currentInvoiceData = {
+
+    date:
+      date,
+
+    customer:
+      customer,
+
+    product:
+      product,
+
+    qty:
+      quantity,
+
+    price:
+      unitPrice,
+
+    shipping:
+      shippingAmount,
+
+    phone:
+      phone,
+
+    address:
+      address,
+
+    orderNo:
+      finalOrderNo
+
+  };
+
+
+  /*
+   * Header
+   */
+
+  document
+    .getElementById(
+      "invNoBadge"
+    )
+    .innerText =
+    "#" +
+    finalOrderNo;
+
+
+  document
+    .getElementById(
+      "invOrderNo"
+    )
+    .innerText =
+    finalOrderNo;
+
 
   document
     .getElementById(
       "invDate"
     )
     .innerText =
-    date || "--";
+    date ||
+    "--";
 
+
+  /*
+   * Customer
+   */
 
   document
     .getElementById(
@@ -3137,7 +4685,9 @@ function openInvoiceModal(
       "invUnitPrice"
     )
     .innerText =
-    money(unitPrice);
+    money(
+      unitPrice
+    );
 
 
   document
@@ -3145,11 +4695,13 @@ function openInvoiceModal(
       "invTotal"
     )
     .innerText =
-    money(itemSubTotal);
+    money(
+      itemSubTotal
+    );
 
 
   /*
-   * Summary
+   * Subtotal
    */
 
   document
@@ -3158,7 +4710,9 @@ function openInvoiceModal(
     )
     .innerText =
     "Rs. " +
-    money(itemSubTotal);
+    money(
+      itemSubTotal
+    );
 
 
   /*
@@ -3177,15 +4731,21 @@ function openInvoiceModal(
 
     shippingBadge.innerText =
       "Rs. " +
-      money(shippingAmount);
+      money(
+        shippingAmount
+      );
+
 
     shippingBadge.className =
       "font-bold text-gray-800";
 
-  } else {
+  }
+
+  else {
 
     shippingBadge.innerText =
       "Free Delivery";
+
 
     shippingBadge.className =
       "font-bold text-green-600";
@@ -3194,7 +4754,7 @@ function openInvoiceModal(
 
 
   /*
-   * Grand Total
+   * Grand total
    */
 
   document
@@ -3203,44 +4763,13 @@ function openInvoiceModal(
     )
     .innerText =
     "Rs. " +
-    money(grandTotal);
-
-
-  /*
-   * Invoice Number
-   */
-
-  const randNum =
-    Math.floor(
-      100000 +
-      Math.random() *
-      900000
+    money(
+      grandTotal
     );
 
 
-  const invoiceNo =
-    "AC-" +
-    randNum;
-
-
-  document
-    .getElementById(
-      "invNoBadge"
-    )
-    .innerText =
-    "#" + invoiceNo;
-
-
-  document
-    .getElementById(
-      "invOrderNo"
-    )
-    .innerText =
-    invoiceNo;
-
-
   /*
-   * Show modal
+   * Show
    */
 
   const modal =
@@ -3252,6 +4781,7 @@ function openInvoiceModal(
   modal.classList.remove(
     "hidden"
   );
+
 
   modal.classList.add(
     "flex"
@@ -3276,6 +4806,7 @@ function closeInvoiceModal() {
     "hidden"
   );
 
+
   modal.classList.remove(
     "flex"
   );
@@ -3284,21 +4815,10 @@ function closeInvoiceModal() {
 
 
 /* ============================================================
-   PRINT INVOICE
+   PREPARE PDF
 ============================================================ */
 
-function printInvoice() {
-
-  window.print();
-
-}
-
-
-/* ============================================================
-   SHARE INVOICE
-============================================================ */
-
-async function shareNativeInvoiceFile() {
+async function createInvoicePDF() {
 
   const element =
     document.getElementById(
@@ -3306,159 +4826,163 @@ async function shareNativeInvoiceFile() {
     );
 
 
-  const custName =
-    document
-      .getElementById(
-        "invCustomer"
-      )
-      .innerText
-      .replace(
-        /\s+/g,
-        "_"
-      )
-      .replace(
-        /[^a-zA-Z0-9_-]/g,
-        ""
+  if (!element) {
+
+    throw new Error(
+      "Invoice area not found."
+    );
+
+  }
+
+
+  const orderNo =
+    currentInvoiceData?.orderNo ||
+    "AC-000001";
+
+
+  const customer =
+    (
+      currentInvoiceData?.customer ||
+      "Customer"
+    )
+    .replace(
+      /\s+/g,
+      "_"
+    )
+    .replace(
+      /[^a-zA-Z0-9_-]/g,
+      ""
+    );
+
+
+  /*
+   * Temporarily expand invoice
+   * for complete PDF capture.
+   */
+
+  element.classList.add(
+    "pdf-export-mode"
+  );
+
+
+  /*
+   * Wait for browser rendering.
+   */
+
+  await new Promise(
+    function(resolve) {
+
+      setTimeout(
+        resolve,
+        250
       );
+
+    }
+  );
+
+
+  const options = {
+
+    margin:
+      0,
+
+    filename:
+      `AfsheenCollection_${orderNo}_${customer}.pdf`,
+
+    image: {
+
+      type:
+        "jpeg",
+
+      quality:
+        0.98
+
+    },
+
+    html2canvas: {
+
+      scale:
+        2,
+
+      useCORS:
+        true,
+
+      allowTaint:
+        true,
+
+      backgroundColor:
+        "#FFF8F9",
+
+      logging:
+        false,
+
+      scrollX:
+        0,
+
+      scrollY:
+        0
+
+    },
+
+    jsPDF: {
+
+      unit:
+        "mm",
+
+      format:
+        "a4",
+
+      orientation:
+        "portrait",
+
+      compress:
+        true
+
+    },
+
+    pagebreak: {
+
+      mode: [
+        "avoid-all",
+        "css",
+        "legacy"
+      ]
+
+    }
+
+  };
 
 
   try {
 
-    /*
-     * Create image
-     */
+    const worker =
+      html2pdf()
+        .set(options)
+        .from(element);
 
-    const canvas =
-      await html2canvas(
-        element,
-        {
-          scale: 2,
-          useCORS: true,
-          backgroundColor:
-            "#FFF8F9"
-        }
+
+    const pdfBlob =
+      await worker.output(
+        "blob"
       );
 
 
-    canvas.toBlob(
-      async function(blob) {
+    return {
 
-        if (!blob) {
+      blob:
+        pdfBlob,
 
-          alert(
-            "Unable to create invoice image."
-          );
+      filename:
+        options.filename
 
-          return;
+    };
 
-        }
+  }
 
+  finally {
 
-        const file =
-          new File(
-            [
-              blob
-            ],
-            `AfsheenCollection_Invoice_${custName}.png`,
-            {
-              type:
-                "image/png"
-            }
-          );
-
-
-        /*
-         * Mobile native share
-         */
-
-        if (
-          navigator.canShare &&
-          navigator.canShare({
-            files: [file]
-          })
-        ) {
-
-          try {
-
-            await navigator.share(
-              {
-                files: [file],
-
-                title:
-                  "Customer Invoice - Afsheen Collection",
-
-                text:
-                  "Here is your official sales invoice from Afsheen Collection."
-              }
-            );
-
-          } catch (err) {
-
-            /*
-             * User cancelled
-             */
-
-            console.log(
-              "Share cancelled:",
-              err
-            );
-
-          }
-
-        } else {
-
-          /*
-           * Desktop fallback
-           */
-
-          const link =
-            document.createElement(
-              "a"
-            );
-
-
-          link.download =
-            `AfsheenCollection_Invoice_${custName}.png`;
-
-
-          link.href =
-            canvas.toDataURL(
-              "image/png"
-            );
-
-
-          document.body.appendChild(
-            link
-          );
-
-
-          link.click();
-
-
-          link.remove();
-
-
-          alert(
-            "Invoice image downloaded!"
-          );
-
-        }
-
-      },
-      "image/png"
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "Invoice error:",
-      error
-    );
-
-
-    alert(
-      "Unable to create invoice image."
+    element.classList.remove(
+      "pdf-export-mode"
     );
 
   }
@@ -3467,7 +4991,305 @@ async function shareNativeInvoiceFile() {
 
 
 /* ============================================================
-   ESC CLOSE MODAL
+   DOWNLOAD PDF
+============================================================ */
+
+async function downloadInvoicePDF() {
+
+  const btn =
+    document.getElementById(
+      "downloadPdfBtn"
+    );
+
+
+  if (
+    btn.disabled
+  ) {
+
+    return;
+
+  }
+
+
+  const originalText =
+    btn.innerText;
+
+
+  try {
+
+    btn.disabled =
+      true;
+
+
+    btn.innerText =
+      "⏳ Creating PDF...";
+
+
+    const result =
+      await createInvoicePDF();
+
+
+    const url =
+      URL.createObjectURL(
+        result.blob
+      );
+
+
+    const link =
+      document.createElement(
+        "a"
+      );
+
+
+    link.href =
+      url;
+
+
+    link.download =
+      result.filename;
+
+
+    document.body.appendChild(
+      link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+
+    setTimeout(
+      function() {
+
+        URL.revokeObjectURL(
+          url
+        );
+
+      },
+      1000
+    );
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "PDF error:",
+      error
+    );
+
+
+    alert(
+      "❌ Unable to create invoice PDF.\n\n" +
+      error.message
+    );
+
+  }
+
+
+  finally {
+
+    btn.disabled =
+      false;
+
+
+    btn.innerText =
+      originalText;
+
+  }
+
+}
+
+
+/* ============================================================
+   SHARE PDF
+============================================================ */
+
+async function shareInvoicePDF() {
+
+  const btn =
+    document.getElementById(
+      "sharePdfBtn"
+    );
+
+
+  if (
+    btn.disabled
+  ) {
+
+    return;
+
+  }
+
+
+  const originalText =
+    btn.innerText;
+
+
+  try {
+
+    btn.disabled =
+      true;
+
+
+    btn.innerText =
+      "⏳ Creating PDF...";
+
+
+    const result =
+      await createInvoicePDF();
+
+
+    const file =
+      new File(
+        [
+          result.blob
+        ],
+        result.filename,
+        {
+          type:
+            "application/pdf"
+        }
+      );
+
+
+    /*
+     * Native mobile PDF sharing
+     */
+
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({
+        files: [file]
+      })
+    ) {
+
+      await navigator.share({
+
+        files: [
+          file
+        ],
+
+        title:
+          "Afsheen Collection Invoice",
+
+        text:
+          "Official invoice from Afsheen Collection."
+
+      });
+
+    }
+
+    else {
+
+      /*
+       * Desktop fallback:
+       * download PDF.
+       */
+
+      const url =
+        URL.createObjectURL(
+          result.blob
+        );
+
+
+      const link =
+        document.createElement(
+          "a"
+        );
+
+
+      link.href =
+        url;
+
+
+      link.download =
+        result.filename;
+
+
+      document.body.appendChild(
+        link
+      );
+
+
+      link.click();
+
+
+      link.remove();
+
+
+      setTimeout(
+        function() {
+
+          URL.revokeObjectURL(
+            url
+          );
+
+        },
+        1000
+      );
+
+
+      alert(
+        "📄 PDF downloaded. You can now share the PDF file."
+      );
+
+    }
+
+  }
+
+
+  catch (error) {
+
+    /*
+     * User cancelled share
+     */
+
+    if (
+      error &&
+      error.name ===
+      "AbortError"
+    ) {
+
+      return;
+
+    }
+
+
+    console.error(
+      "Share PDF error:",
+      error
+    );
+
+
+    alert(
+      "❌ Unable to share invoice PDF.\n\n" +
+      error.message
+    );
+
+  }
+
+
+  finally {
+
+    btn.disabled =
+      false;
+
+
+    btn.innerText =
+      originalText;
+
+  }
+
+}
+
+
+/* ============================================================
+   ESC CLOSE
 ============================================================ */
 
 document.addEventListener(
@@ -3475,7 +5297,8 @@ document.addEventListener(
   function(e) {
 
     if (
-      e.key === "Escape"
+      e.key ===
+      "Escape"
     ) {
 
       closeInvoiceModal();
@@ -3487,7 +5310,7 @@ document.addEventListener(
 
 
 /* ============================================================
-   CLICK OUTSIDE INVOICE MODAL
+   CLICK OUTSIDE
 ============================================================ */
 
 document
@@ -3499,7 +5322,8 @@ document
     function(e) {
 
       if (
-        e.target === this
+        e.target ===
+        this
       ) {
 
         closeInvoiceModal();
@@ -3518,7 +5342,9 @@ setTodayDate();
 
 toggleFields();
 
+
 </script>
 
 </body>
+
 </html>
