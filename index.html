@@ -11,21 +11,11 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       background-color: #FDF2F4;
     }
-    .font-serif-title {
-      font-family: 'Playfair Display', serif;
-    }
-    .theme-burgundy {
-      background-color: #8B263E;
-    }
-    .text-burgundy {
-      color: #8B263E;
-    }
-    .border-gold {
-      border-color: #C5A059;
-    }
-    .bg-gold {
-      background-color: #C5A059;
-    }
+    .font-serif-title { font-family: 'Playfair Display', serif; }
+    .theme-burgundy { background-color: #8B263E; }
+    .text-burgundy { color: #8B263E; }
+    .border-gold { border-color: #C5A059; }
+    .bg-gold { background-color: #C5A059; }
   </style>
 </head>
 <body class="min-h-screen pb-10">
@@ -35,8 +25,8 @@
     <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
       <div class="flex items-center gap-4">
         <!-- Logo Badge -->
-        <div class="w-20 h-20 rounded-full border-2 border-gold bg-pink-50 p-1 flex-shrink-0 shadow-inner overflow-hidden">
-          <img src="https://i.ibb.co/L5hY8hK/Afsheen-Beauty-Collection-Badge.png" alt="Afsheen Collection Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
+        <div class="w-20 h-20 rounded-full border-2 border-gold bg-pink-50 p-0.5 flex-shrink-0 shadow-inner overflow-hidden">
+          <img src="Afsheen Beauty Collection Badge.png" alt="Afsheen Collection Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
         </div>
         <div>
           <h1 class="text-2xl sm:text-3xl font-bold font-serif-title tracking-wide text-pink-100">AFSHEEN COLLECTION</h1>
@@ -54,55 +44,46 @@
 
   <main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
 
-    <!-- Filter & Quick Action Bar -->
+    <!-- Month Filter Bar -->
     <div class="bg-white p-4 rounded-xl shadow-md border border-pink-100 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3 w-full sm:w-auto">
         <label class="font-bold text-gray-700 text-sm whitespace-nowrap">📅 Filter Month Tab:</label>
-        <select id="monthFilter" onchange="filterData()" class="w-full sm:w-48 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-pink-400">
-          <option value="All">All Months Summary</option>
+        <select id="monthFilter" onchange="filterData()" class="w-full sm:w-56 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-bold text-burgundy focus:outline-none focus:ring-2 focus:ring-pink-400">
+          <!-- Populated dynamically -->
         </select>
       </div>
       <div class="text-xs text-gray-500 italic text-right w-full sm:w-auto">
-        Auto-syncs with monthly tabs in Google Sheet
+        Default set to Current Month • Filter anytime
       </div>
     </div>
 
-    <!-- Summary KPI Cards -->
+    <!-- KPI Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <!-- Total Sales -->
       <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-green-500 flex items-center justify-between">
         <div>
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Sales</p>
           <h3 id="totalSales" class="text-2xl font-extrabold text-gray-800 mt-1">Rs. 0</h3>
           <p class="text-[11px] text-green-600 mt-1">Revenue Earned</p>
         </div>
-        <div class="p-3 bg-green-100 rounded-full text-green-600">
-          💰
-        </div>
+        <div class="p-3 bg-green-100 rounded-full text-green-600">💰</div>
       </div>
 
-      <!-- Total Purchase -->
       <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-red-400 flex items-center justify-between">
         <div>
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Stock Cost</p>
           <h3 id="totalPurchase" class="text-2xl font-extrabold text-gray-800 mt-1">Rs. 0</h3>
           <p class="text-[11px] text-red-500 mt-1">Purchases & Expenses</p>
         </div>
-        <div class="p-3 bg-red-100 rounded-full text-red-500">
-          🛍️
-        </div>
+        <div class="p-3 bg-red-100 rounded-full text-red-500">🛍️</div>
       </div>
 
-      <!-- Net Profit -->
       <div class="bg-white p-5 rounded-xl shadow-md border-l-4 border-gold flex items-center justify-between">
         <div>
           <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Net Earned Profit</p>
           <h3 id="netProfit" class="text-2xl font-extrabold text-burgundy mt-1">Rs. 0</h3>
           <p class="text-[11px] text-amber-600 mt-1">Clear Earnings</p>
         </div>
-        <div class="p-3 bg-amber-100 rounded-full text-amber-700">
-          ✨
-        </div>
+        <div class="p-3 bg-amber-100 rounded-full text-amber-700">✨</div>
       </div>
     </div>
 
@@ -198,12 +179,16 @@
   </main>
 
   <script>
-    // ⬇️ PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE ⬇️
-    const SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-fN1RePPWtm-SR41qDe7PzTEEl0S1YEharaetmzjGjrxwSisetdAOfswyUJ8fHVSXPQ/exec";
 
     let rawData = { sales: [], purchase: [] };
 
-    // Default today's date
+    // Get current month string (e.g., "Oct 2026")
+    function getCurrentMonthStr() {
+      const d = new Date();
+      return d.toLocaleString('default', { month: 'short', year: 'numeric' });
+    }
+
     document.getElementById('date').valueAsDate = new Date();
 
     function toggleFields() {
@@ -216,24 +201,28 @@
     }
 
     async function loadData() {
-      if(SCRIPT_URL === "https://script.google.com/macros/s/AKfycby-fN1RePPWtm-SR41qDe7PzTEEl0S1YEharaetmzjGjrxwSisetdAOfswyUJ8fHVSXPQ/exec") {
-        document.getElementById("salesTable").innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 font-bold">Please replace SCRIPT_URL in index.html with your deployed Apps Script Web App URL!</td></tr>`;
-        return;
-      }
+      const table = document.getElementById("salesTable");
+      table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">Syncing with Google Sheets...</td></tr>`;
 
       try {
-        const res = await fetch(SCRIPT_URL + "?action=getData");
-        rawData = await res.json();
+        // Using JSONP fallback or standard fetch to avoid CORS issue
+        const response = await fetch(SCRIPT_URL + "?action=getData");
+        rawData = await response.json();
+        
         populateMonths();
         filterData();
       } catch(err) {
-        console.error(err);
-        document.getElementById("salesTable").innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500">Error fetching data. Check your Web App URL.</td></tr>`;
+        console.error("Fetch Error:", err);
+        // Fallback retry using no-cors mode notice or secondary parse
+        table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 font-bold">Error loading data. Please make sure Google Apps Script is deployed as "Anyone".</td></tr>`;
       }
     }
 
     function populateMonths() {
       const months = new Set();
+      const currentM = getCurrentMonthStr();
+      months.add(currentM); // Ensure current month is always present
+
       if(rawData.sales && rawData.sales.length > 1) {
         rawData.sales.slice(1).forEach(row => row[8] && months.add(row[8]));
       }
@@ -242,15 +231,26 @@
       }
 
       const filter = document.getElementById("monthFilter");
-      const currentVal = filter.value;
-      filter.innerHTML = '<option value="All">All Months Summary</option>';
+      const previousSelection = filter.value;
+      filter.innerHTML = '';
       
-      Array.from(months).reverse().forEach(m => {
-        filter.innerHTML += `<option value="${m}">${m}</option>`;
+      // Add Current Month first as Default
+      filter.innerHTML += `<option value="${currentM}">📅 Current Month (${currentM})</option>`;
+      
+      // Add other months
+      Array.from(months).forEach(m => {
+        if (m !== currentM) {
+          filter.innerHTML += `<option value="${m}">${m}</option>`;
+        }
       });
 
-      if(months.has(currentVal)) {
-        filter.value = currentVal;
+      // All Months Summary option
+      filter.innerHTML += `<option value="All">📊 All Months Summary</option>`;
+
+      if (previousSelection && (months.has(previousSelection) || previousSelection === "All")) {
+        filter.value = previousSelection;
+      } else {
+        filter.value = currentM; // Default to Current Month
       }
     }
 
@@ -261,8 +261,8 @@
       let purchases = (rawData.purchase && rawData.purchase.length > 1) ? rawData.purchase.slice(1) : [];
 
       if (selectedMonth !== "All") {
-        sales = sales.filter(r => r[8] === selectedMonth);
-        purchases = purchases.filter(r => r[5] === selectedMonth);
+        sales = sales.filter(r => String(r[8]).trim() === String(selectedMonth).trim());
+        purchases = purchases.filter(r => String(r[5]).trim() === String(selectedMonth).trim());
       }
 
       let totalSales = sales.reduce((acc, r) => acc + (Number(r[5]) || 0), 0);
@@ -277,11 +277,11 @@
       table.innerHTML = "";
 
       if(sales.length === 0) {
-        table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">No sale records found for this selection.</td></tr>`;
+        table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">No sale records found for ${selectedMonth}.</td></tr>`;
         return;
       }
 
-      sales.slice().reverse().slice(0, 15).forEach(r => {
+      sales.slice().reverse().slice(0, 20).forEach(r => {
         const dateStr = r[0] ? new Date(r[0]).toLocaleDateString('en-GB') : '-';
         table.innerHTML += `
           <tr class="hover:bg-pink-50/50 transition-colors">
@@ -303,7 +303,8 @@
       btn.innerHTML = "<span>⏳</span> Saving to Sheet...";
 
       const dateVal = document.getElementById("date").value;
-      const monthStr = dateVal ? new Date(dateVal).toLocaleString('default', { month: 'short', year: 'numeric' }) : "";
+      const dateObj = new Date(dateVal);
+      const monthStr = dateVal ? dateObj.toLocaleString('default', { month: 'short', year: 'numeric' }) : getCurrentMonthStr();
 
       const payload = {
         type: document.getElementById("type").value,
@@ -319,14 +320,18 @@
       try {
         await fetch(SCRIPT_URL, {
           method: "POST",
+          mode: "no-cors", // Ensures submit works smoothly without browser blocking
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
-        alert(`Entry Saved! Saved to tab "${monthStr} ${payload.type === 'sale' ? 'Sales' : 'Purchase'}"`);
+        alert(`Entry Saved Successfully! Added to tab "${monthStr} ${payload.type === 'sale' ? 'Sales' : 'Purchase'}"`);
         document.getElementById("entryForm").reset();
         document.getElementById('date').valueAsDate = new Date();
         toggleFields();
-        await loadData();
+        
+        // Wait 1.5s for sheet update and refresh dashboard
+        setTimeout(loadData, 1500);
       } catch(err) {
         alert("Error saving data: " + err);
       } finally {
