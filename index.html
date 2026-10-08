@@ -2,32 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Afsheen Collection - Sales & Purchase Dashboard</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>Afsheen Collection - Sales Dashboard</title>
+
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- html2canvas for Image Generation & Native Sharing -->
+
+  <!-- Invoice Image -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Great+Vibes&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
   <style>
-    html, body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #FDF2F4;
-      overflow-x: hidden;
-      width: 100%;
+
+    * {
+      box-sizing: border-box;
     }
-    .font-serif-title { font-family: 'Playfair Display', serif; }
-    .font-script { font-family: 'Great Vibes', cursive; }
-    .theme-burgundy { background-color: #8B263E; }
-    .text-burgundy { color: #8B263E; }
-    .border-gold { border-color: #C5A059; }
-    .bg-gold { background-color: #C5A059; }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: "Plus Jakarta Sans", sans-serif;
+      background: #FDF2F4;
+      overflow-x: hidden;
+    }
+
+    body {
+      color: #1f2937;
+    }
+
+    .font-serif-title {
+      font-family: "Playfair Display", serif;
+    }
+
+    .font-script {
+      font-family: "Great Vibes", cursive;
+    }
+
+    .theme-burgundy {
+      background-color: #8B263E;
+    }
+
+    .theme-burgundy:hover {
+      background-color: #741F34;
+    }
+
+    .text-burgundy {
+      color: #8B263E;
+    }
+
+    .border-gold {
+      border-color: #C5A059;
+    }
+
+    .bg-gold {
+      background-color: #C5A059;
+    }
+
+    .text-gold {
+      color: #C5A059;
+    }
+
+    .soft-shadow {
+      box-shadow: 0 8px 25px rgba(139, 38, 62, 0.08);
+    }
 
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      20%, 60% { transform: translateX(-10px); }
-      40%, 80% { transform: translateX(10px); }
+      0%, 100% {
+        transform: translateX(0);
+      }
+
+      20%, 60% {
+        transform: translateX(-8px);
+      }
+
+      40%, 80% {
+        transform: translateX(8px);
+      }
     }
-    .animate-shake { animation: shake 0.4s ease-in-out; }
+
+    .animate-shake {
+      animation: shake 0.4s ease-in-out;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-spin {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      background: rgba(253,242,244,.96);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .page-loader.hidden {
+      display: none;
+    }
+
+    .loader-circle {
+      width: 42px;
+      height: 42px;
+      border: 4px solid #f4dce2;
+      border-top-color: #8B263E;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
 
     #invoicePrintArea {
       width: 100% !important;
@@ -36,590 +144,3381 @@
       box-sizing: border-box !important;
       background-color: #FFF8F9 !important;
     }
+
+    .table-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .table-scroll::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .table-scroll::-webkit-scrollbar-thumb {
+      background: #d8a9b5;
+      border-radius: 20px;
+    }
+
+    .stat-card {
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(139, 38, 62, .10);
+    }
+
+    @media print {
+
+      body {
+        background: white !important;
+      }
+
+      body * {
+        visibility: hidden !important;
+      }
+
+      #invoicePrintArea,
+      #invoicePrintArea * {
+        visibility: visible !important;
+      }
+
+      #invoicePrintArea {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+
   </style>
 </head>
-<body class="min-h-screen pb-10">
 
-  <!-- LOGIN SCREEN -->
-  <div id="loginScreen" class="fixed inset-0 bg-[#FDF2F4] flex items-center justify-center p-4 z-50">
-    <div id="loginBox" class="bg-white rounded-2xl shadow-2xl border-2 border-gold max-w-sm w-full p-6 text-center space-y-5">
-      <div class="w-24 h-24 mx-auto rounded-full border-2 border-gold bg-pink-50 p-1 shadow-md overflow-hidden">
-        <img src="Inovice image.png" alt="Afsheen Collection Logo Banner" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.src='Afsheen Beauty Collection Badge.png';">
-      </div>
-      <div>
-        <h2 class="text-2xl font-bold font-serif-title text-burgundy tracking-wide">AFSHEEN COLLECTION</h2>
-        <p class="text-xs text-amber-700 italic">Sales & Inventory Access Portal</p>
-      </div>
+<body>
 
-      <form onsubmit="handleLogin(event)" class="space-y-4 text-left">
-        <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1">Email Address</label>
-          <input type="email" id="loginEmail" placeholder="Enter your email" required class="w-full p-2.5 border border-pink-200 rounded-lg text-sm bg-pink-50/30 focus:ring-2 focus:ring-burgundy focus:outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
-          <input type="password" id="loginPassword" placeholder="••••••••" required class="w-full p-2.5 border border-pink-200 rounded-lg text-sm bg-pink-50/30 focus:ring-2 focus:ring-burgundy focus:outline-none">
-        </div>
-        <div id="loginError" class="text-xs text-red-600 font-bold hidden text-center">
-          ❌ Invalid Email or Password!
-        </div>
-        <button type="submit" class="w-full theme-burgundy text-white font-bold py-2.5 rounded-lg shadow-md hover:bg-opacity-90 transition">
-          🔓 Secure Login
-        </button>
-      </form>
-    </div>
+<!-- =========================================================
+     PAGE LOADER
+========================================================= -->
+
+<div id="pageLoader" class="page-loader">
+
+  <div class="loader-circle"></div>
+
+  <div class="text-burgundy font-bold text-sm">
+    Loading Afsheen Collection...
   </div>
 
-  <!-- DASHBOARD WRAPPER -->
-  <div id="dashboardWrapper" class="hidden w-full max-w-full overflow-hidden">
+  <div class="text-xs text-gray-500">
+    Connecting to Google Sheet
+  </div>
 
-    <!-- Header Banner Image -->
-    <header class="max-w-5xl mx-auto px-2 sm:px-4 pt-4">
-      <div class="w-full rounded-2xl border-2 border-gold shadow-lg overflow-hidden bg-pink-100 max-h-48 sm:max-h-64">
-        <img src="Inovice image.png" alt="Afsheen Collection Header Banner" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.src='Afsheen Beauty Collection Badge.png';">
+</div>
+
+
+<!-- =========================================================
+     LOGIN SCREEN
+========================================================= -->
+
+<div
+  id="loginScreen"
+  class="fixed inset-0 bg-[#FDF2F4] flex items-center justify-center p-4 z-50"
+>
+
+  <div
+    id="loginBox"
+    class="bg-white rounded-2xl shadow-2xl border-2 border-gold max-w-sm w-full p-6 text-center space-y-5"
+  >
+
+    <!-- Logo -->
+
+    <div
+      class="w-24 h-24 mx-auto rounded-full border-2 border-gold bg-pink-50 p-1 shadow-md overflow-hidden"
+    >
+
+      <img
+        src="Inovice image.png"
+        alt="Afsheen Collection"
+        class="w-full h-full object-cover rounded-full"
+        onerror="this.onerror=null; this.src='Afsheen Beauty Collection Badge.png';"
+      >
+
+    </div>
+
+
+    <!-- Title -->
+
+    <div>
+
+      <h2
+        class="text-2xl font-bold font-serif-title text-burgundy tracking-wide"
+      >
+        AFSHEEN COLLECTION
+      </h2>
+
+      <p class="text-xs text-amber-700 italic mt-1">
+        Sales & Inventory Access Portal
+      </p>
+
+    </div>
+
+
+    <!-- Login -->
+
+    <form
+      onsubmit="handleLogin(event)"
+      class="space-y-4 text-left"
+    >
+
+      <div>
+
+        <label class="block text-xs font-bold text-gray-700 mb-1">
+          Email Address
+        </label>
+
+        <input
+          type="email"
+          id="loginEmail"
+          placeholder="ibrahim@afsheencollection.pk"
+          required
+          autocomplete="username"
+          class="w-full p-2.5 border border-pink-200 rounded-lg text-sm bg-pink-50/30 focus:ring-2 focus:ring-burgundy focus:outline-none"
+        >
+
       </div>
-    </header>
 
-    <main id="dashboardReport" class="max-w-5xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6 space-y-4 sm:space-y-6">
 
-      <!-- Month Filter Bar -->
-      <div class="bg-white p-3 sm:p-4 rounded-xl shadow-md border border-pink-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div>
+
+        <label class="block text-xs font-bold text-gray-700 mb-1">
+          Password
+        </label>
+
+        <input
+          type="password"
+          id="loginPassword"
+          placeholder="••••••••"
+          required
+          autocomplete="current-password"
+          class="w-full p-2.5 border border-pink-200 rounded-lg text-sm bg-pink-50/30 focus:ring-2 focus:ring-burgundy focus:outline-none"
+        >
+
+      </div>
+
+
+      <div
+        id="loginError"
+        class="text-xs text-red-600 font-bold hidden text-center"
+      >
+        ❌ Invalid Email or Password!
+      </div>
+
+
+      <button
+        type="submit"
+        class="w-full theme-burgundy text-white font-bold py-2.5 rounded-lg shadow-md transition"
+      >
+        🔓 Secure Login
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     DASHBOARD
+========================================================= -->
+
+<div
+  id="dashboardWrapper"
+  class="hidden w-full max-w-full overflow-hidden"
+>
+
+  <!-- =======================================================
+       HEADER
+  ======================================================== -->
+
+  <header class="max-w-5xl mx-auto px-2 sm:px-4 pt-4">
+
+    <div
+      class="w-full rounded-2xl border-2 border-gold shadow-lg overflow-hidden bg-pink-100 max-h-48 sm:max-h-64"
+    >
+
+      <img
+        src="Inovice image.png"
+        alt="Afsheen Collection"
+        class="w-full h-full object-cover object-center"
+        onerror="this.onerror=null; this.src='Afsheen Beauty Collection Badge.png';"
+      >
+
+    </div>
+
+  </header>
+
+
+  <!-- =======================================================
+       MAIN
+  ======================================================== -->
+
+  <main
+    id="dashboardReport"
+    class="max-w-5xl mx-auto px-2 sm:px-4 mt-4 sm:mt-6 space-y-4 sm:space-y-6"
+  >
+
+
+    <!-- =====================================================
+         FILTER BAR
+    ====================================================== -->
+
+    <div
+      class="bg-white p-3 sm:p-4 rounded-xl shadow-md border border-pink-100"
+    >
+
+      <div
+        class="flex flex-col sm:flex-row items-center justify-between gap-3"
+      >
+
         <div class="flex items-center gap-2 w-full sm:w-auto">
-          <label class="font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap">📅 View Tab Data:</label>
-          <select id="monthFilter" onchange="filterData()" class="w-full sm:w-60 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-bold text-burgundy text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400">
+
+          <label
+            class="font-bold text-gray-700 text-xs sm:text-sm whitespace-nowrap"
+          >
+            📅 View Data:
+          </label>
+
+          <select
+            id="monthFilter"
+            onchange="filterData()"
+            class="w-full sm:w-72 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-bold text-burgundy text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+          >
+            <option value="Current Month">
+              📅 Current Month
+            </option>
           </select>
-        </div>
-      </div>
 
-      <!-- KPI Summary Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-        <div class="bg-white p-4 sm:p-5 rounded-xl shadow-md border-l-4 border-green-500 flex items-center justify-between">
-          <div>
-            <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Sales</p>
-            <h3 id="totalSales" class="text-xl sm:text-2xl font-extrabold text-gray-800 mt-1">Rs. 0</h3>
-            <p class="text-[10px] sm:text-[11px] text-green-600 mt-0.5">Revenue Earned</p>
-          </div>
-          <div class="p-2.5 bg-green-100 rounded-full text-green-600 text-lg sm:text-xl">💰</div>
         </div>
 
-        <div class="bg-white p-4 sm:p-5 rounded-xl shadow-md border-l-4 border-red-400 flex items-center justify-between">
-          <div>
-            <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Stock Cost</p>
-            <h3 id="totalPurchase" class="text-xl sm:text-2xl font-extrabold text-gray-800 mt-1">Rs. 0</h3>
-            <p class="text-[10px] sm:text-[11px] text-red-500 mt-0.5">Purchases & Expenses</p>
-          </div>
-          <div class="p-2.5 bg-red-100 rounded-full text-red-500 text-lg sm:text-xl">🛍️</div>
-        </div>
 
-        <div class="bg-white p-4 sm:p-5 rounded-xl shadow-md border-l-4 border-gold flex items-center justify-between">
-          <div>
-            <p class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider">Net Earned Profit</p>
-            <h3 id="netProfit" class="text-xl sm:text-2xl font-extrabold text-burgundy mt-1">Rs. 0</h3>
-            <p class="text-[10px] sm:text-[11px] text-amber-600 mt-0.5">Clear Earnings</p>
-          </div>
-          <div class="p-2.5 bg-amber-100 rounded-full text-amber-700 text-lg sm:text-xl">✨</div>
-        </div>
-      </div>
+        <div class="flex gap-2 w-full sm:w-auto">
 
-      <!-- Data Entry Form -->
-      <div class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-pink-100">
-        <div class="border-b border-pink-100 pb-2.5 mb-3.5 flex items-center justify-between">
-          <h2 class="text-base sm:text-lg font-bold text-burgundy font-serif-title flex items-center gap-2">
-            <span>➕</span> Add New Transaction
-          </h2>
-          <span class="text-[10px] sm:text-xs bg-pink-100 text-burgundy px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full font-medium">Saves to 'Current Month'</span>
-        </div>
-
-        <form id="entryForm" onsubmit="submitData(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-          <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1">Entry Type</label>
-            <select id="type" onchange="toggleFields()" class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-              <option value="sale">Customer Sale Order</option>
-              <option value="purchase">Inventory Purchase (Stock)</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1">Date</label>
-            <input type="date" id="date" required class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-          </div>
-
-          <div id="customerField">
-            <label class="block text-xs font-bold text-gray-700 mb-1">Customer Name</label>
-            <input type="text" id="customer" placeholder="e.g. Sana Malik" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-          </div>
-
-          <div id="phoneField">
-            <label class="block text-xs font-bold text-gray-700 mb-1">Phone Number (Optional)</label>
-            <input type="text" id="phone" placeholder="e.g. 0300 1234567" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-          </div>
-
-          <div id="addressField" class="sm:col-span-2">
-            <label class="block text-xs font-bold text-gray-700 mb-1">Delivery Address (Optional)</label>
-            <input type="text" id="address" placeholder="e.g. House 12, Street 4, Gulberg, Lahore" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1">Product Name</label>
-            <input type="text" id="product" placeholder="e.g. Velvet Lipstick" required class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-          </div>
-
-          <div>
-            <label id="priceLabel" class="block text-xs font-bold text-gray-700 mb-1">Selling Price (Per Unit)</label>
-            <input type="number" id="price" placeholder="Rs." required class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-          </div>
-
-          <div id="costPriceField">
-            <label class="block text-xs font-bold text-gray-700 mb-1">Purchase Cost (For Profit Calc)</label>
-            <input type="number" id="costPrice" placeholder="Rs. Cost price" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-gray-700 mb-1">Quantity</label>
-            <input type="number" id="quantity" value="1" min="1" required class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-          </div>
-
-          <div id="shippingField">
-            <label class="block text-xs font-bold text-gray-700 mb-1">Shipping Charges (0 = Free)</label>
-            <input type="number" id="shipping" placeholder="Rs. 0 for Free" value="0" class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none">
-          </div>
-
-          <div class="sm:col-span-2 md:col-span-3 flex items-end pt-2">
-            <button type="submit" id="submitBtn" class="w-full theme-burgundy hover:bg-opacity-90 text-white font-bold py-2.5 px-4 rounded-lg shadow-md transition-all duration-200 flex justify-center items-center gap-2 text-xs sm:text-sm">
-              <span>💾</span> Save Entry to Sheet
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Recent Log Table -->
-      <div class="bg-white p-3 sm:p-6 rounded-xl shadow-md border border-pink-100 w-full overflow-hidden">
-        <div class="flex justify-between items-center border-b border-pink-100 pb-3 mb-4">
-          <h2 class="text-sm sm:text-lg font-bold text-burgundy font-serif-title flex items-center gap-2">
-            <span>📋</span> Transactions & Sales Log
-          </h2>
-          <button onclick="loadData()" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg border">
+          <button
+            onclick="loadData()"
+            id="refreshBtn"
+            class="flex-1 sm:flex-none text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-3 py-2 rounded-lg border"
+          >
             🔄 Refresh
           </button>
-        </div>
 
-        <div class="w-full overflow-x-auto block">
-          <table class="w-full text-left border-collapse text-xs min-w-[650px]">
-            <thead>
-              <tr class="bg-pink-50 text-burgundy border-b border-pink-200 font-bold">
-                <th class="p-2 sm:p-2.5">Date</th>
-                <th class="p-2 sm:p-2.5">Type</th>
-                <th class="p-2 sm:p-2.5">Customer Details</th>
-                <th class="p-2 sm:p-2.5">Product</th>
-                <th class="p-2 sm:p-2.5">Qty</th>
-                <th class="p-2 sm:p-2.5">Total Amount</th>
-                <th class="p-2 sm:p-2.5">Profit</th>
-                <th class="p-2 sm:p-2.5">Action</th>
-              </tr>
-            </thead>
-            <tbody id="salesTable" class="divide-y divide-gray-100">
-              <tr>
-                <td colspan="8" class="p-4 text-center text-gray-400">Loading data from Google Sheet...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </main>
-
-    <!-- CUSTOMER INVOICE MODAL -->
-    <div id="invoiceModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4 z-50">
-      <div class="bg-white rounded-2xl max-w-xl w-full p-4 sm:p-6 shadow-2xl relative border-2 border-gold max-h-[95vh] overflow-y-auto">
-        <button onclick="closeInvoiceModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-lg z-10">✕</button>
-        
-        <!-- Printable Invoice Box -->
-        <div id="invoicePrintArea" class="bg-[#FFF8F9] p-4 sm:p-5 rounded-xl border border-pink-200 space-y-3.5 text-gray-800">
-          
-          <!-- Top Banner Image -->
-          <div class="w-full rounded-xl overflow-hidden border border-gold shadow-sm max-h-36 mb-1">
-            <img src="Inovice image.png" alt="Afsheen Collection Banner" class="w-full h-full object-cover object-center" onerror="this.onerror=null; this.src='Afsheen Beauty Collection Badge.png';">
-          </div>
-
-          <!-- Header Invoice Info -->
-          <div class="flex flex-row justify-between items-center border-b border-pink-200 pb-2 text-xs">
-            <div>
-              <span id="invNoBadge" class="inline-block bg-pink-100 text-burgundy font-bold px-2.5 py-0.5 rounded-full border border-pink-200"># AC-20261001</span>
-            </div>
-
-            <div class="text-right text-[11px] text-gray-600 space-y-0.5">
-              <p><strong>Date:</strong> <span id="invDate">--</span></p>
-              <p><strong>Payment:</strong> Cash on Delivery</p>
-            </div>
-          </div>
-
-          <!-- Category Badges -->
-          <div class="flex justify-center items-center gap-3 text-[10px] font-medium text-gray-600 border-b border-pink-100 pb-1.5">
-            <span>Makeup</span> • <span>Skincare</span> • <span>Beauty Essentials</span>
-          </div>
-
-          <!-- Order & Bill To Grid -->
-          <div class="grid grid-cols-2 gap-2 text-xs bg-white p-3 rounded-xl border border-pink-100 shadow-sm">
-            <div>
-              <p class="font-bold text-burgundy border-b border-pink-100 pb-1 mb-1 text-[11px]">👤 Bill To:</p>
-              <p><strong>Name:</strong> <span id="invCustomer" class="font-semibold text-gray-900">--</span></p>
-              <p><strong>Phone:</strong> <span id="invPhone" class="text-gray-800">--</span></p>
-              <p><strong>Address:</strong> <span id="invAddress" class="text-gray-800">--</span></p>
-            </div>
-            <div>
-              <p class="font-bold text-burgundy border-b border-pink-100 pb-1 mb-1 text-[11px]">📦 Order Info:</p>
-              <p><strong>Order No:</strong> <span id="invOrderNo">--</span></p>
-              <p><strong>Status:</strong> Confirmed & Verified</p>
-              <p><strong>Shipping:</strong> Standard Delivery</p>
-            </div>
-          </div>
-
-          <!-- Product Table -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr class="bg-pink-100 text-burgundy font-bold border-b border-pink-200">
-                  <th class="py-2 px-2 text-center w-6">#</th>
-                  <th class="py-2 px-2">PRODUCT NAME</th>
-                  <th class="py-2 px-2 text-center">QTY</th>
-                  <th class="py-2 px-2 text-right">UNIT PRICE</th>
-                  <th class="py-2 px-2 text-right">TOTAL</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-pink-100 bg-white">
-                <tr>
-                  <td class="py-2 px-2 text-center text-gray-500 font-bold">1</td>
-                  <td id="invProduct" class="py-2 px-2 font-semibold text-gray-800">--</td>
-                  <td id="invQty" class="py-2 px-2 text-center font-bold">--</td>
-                  <td id="invUnitPrice" class="py-2 px-2 text-right">--</td>
-                  <td id="invTotal" class="py-2 px-2 text-right font-bold text-burgundy">--</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Summary & Shipping Calculation -->
-          <div class="grid grid-cols-2 gap-2 items-end pt-1">
-            <div class="bg-pink-50/60 p-2.5 rounded-xl border border-pink-100 text-[11px]">
-              <p class="font-bold text-burgundy font-script text-sm">♡ A little note for you...</p>
-              <p class="text-[10px] text-gray-600 mt-0.5 italic">We hope you love your purchase! ♡ Contact us anytime if needed.</p>
-            </div>
-
-            <div class="bg-white p-2.5 rounded-xl border border-pink-100 text-xs space-y-1">
-              <div class="flex justify-between text-gray-600">
-                <span>Sub Total:</span>
-                <span id="invSubTotal" class="font-bold">Rs. 0</span>
-              </div>
-              <div class="flex justify-between text-gray-600">
-                <span>Shipping:</span>
-                <span id="invShippingBadge" class="font-bold text-green-600">Free Delivery</span>
-              </div>
-              <div class="flex justify-between text-xs sm:text-sm font-extrabold text-burgundy border-t border-pink-200 pt-1">
-                <span>Total Amount:</span>
-                <span id="invGrandTotal">Rs. 0</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Clean Contact Footer -->
-          <div class="border-t border-pink-200 pt-2.5 text-[11px] text-gray-700 flex justify-between items-center px-1">
-            <div class="flex items-center gap-1 font-bold text-green-700">
-              <svg class="w-3.5 h-3.5 fill-green-600" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981z"/></svg>
-              <span>WhatsApp: +92 322 5331900</span>
-            </div>
-
-            <span class="font-script text-pink-600 text-sm font-bold">Stay Beautiful ♡</span>
-          </div>
-
-        </div>
-
-        <!-- Action Button -->
-        <div class="mt-3">
-          <button onclick="shareNativeInvoiceFile()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2">
-            <span>📲</span> Share Invoice File (WhatsApp, FB)
+          <button
+            onclick="logout()"
+            class="flex-1 sm:flex-none text-xs bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-3 py-2 rounded-lg border border-red-100"
+          >
+            🔒 Logout
           </button>
+
         </div>
 
       </div>
+
+
+      <!-- Connection Status -->
+
+      <div
+        class="mt-3 flex items-center justify-between text-[10px] sm:text-xs"
+      >
+
+        <div
+          id="connectionStatus"
+          class="text-gray-500"
+        >
+          ● Connecting...
+        </div>
+
+        <div
+          id="recordCount"
+          class="text-gray-400"
+        >
+          0 records
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         KPI CARDS
+    ====================================================== -->
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+
+
+      <!-- SALES -->
+
+      <div
+        class="stat-card bg-white p-4 sm:p-5 rounded-xl shadow-md border-l-4 border-green-500 flex items-center justify-between"
+      >
+
+        <div>
+
+          <p
+            class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider"
+          >
+            Total Sales
+          </p>
+
+          <h3
+            id="totalSales"
+            class="text-xl sm:text-2xl font-extrabold text-gray-800 mt-1"
+          >
+            Rs. 0
+          </h3>
+
+          <p class="text-[10px] sm:text-[11px] text-green-600 mt-0.5">
+            Revenue Earned
+          </p>
+
+        </div>
+
+        <div
+          class="p-2.5 bg-green-100 rounded-full text-green-600 text-lg sm:text-xl"
+        >
+          💰
+        </div>
+
+      </div>
+
+
+      <!-- PURCHASE -->
+
+      <div
+        class="stat-card bg-white p-4 sm:p-5 rounded-xl shadow-md border-l-4 border-red-400 flex items-center justify-between"
+      >
+
+        <div>
+
+          <p
+            class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider"
+          >
+            Total Stock Cost
+          </p>
+
+          <h3
+            id="totalPurchase"
+            class="text-xl sm:text-2xl font-extrabold text-gray-800 mt-1"
+          >
+            Rs. 0
+          </h3>
+
+          <p class="text-[10px] sm:text-[11px] text-red-500 mt-0.5">
+            Purchases & Expenses
+          </p>
+
+        </div>
+
+        <div
+          class="p-2.5 bg-red-100 rounded-full text-red-500 text-lg sm:text-xl"
+        >
+          🛍️
+        </div>
+
+      </div>
+
+
+      <!-- PROFIT -->
+
+      <div
+        class="stat-card bg-white p-4 sm:p-5 rounded-xl shadow-md border-l-4 border-gold flex items-center justify-between"
+      >
+
+        <div>
+
+          <p
+            class="text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider"
+          >
+            Net Earned Profit
+          </p>
+
+          <h3
+            id="netProfit"
+            class="text-xl sm:text-2xl font-extrabold text-burgundy mt-1"
+          >
+            Rs. 0
+          </h3>
+
+          <p class="text-[10px] sm:text-[11px] text-amber-600 mt-0.5">
+            Clear Earnings
+          </p>
+
+        </div>
+
+        <div
+          class="p-2.5 bg-amber-100 rounded-full text-amber-700 text-lg sm:text-xl"
+        >
+          ✨
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         ADD TRANSACTION
+    ====================================================== -->
+
+    <div
+      class="bg-white p-4 sm:p-6 rounded-xl shadow-md border border-pink-100"
+    >
+
+      <div
+        class="border-b border-pink-100 pb-2.5 mb-3.5 flex items-center justify-between gap-2"
+      >
+
+        <h2
+          class="text-base sm:text-lg font-bold text-burgundy font-serif-title flex items-center gap-2"
+        >
+          <span>➕</span>
+          Add New Transaction
+        </h2>
+
+        <span
+          class="text-[10px] sm:text-xs bg-pink-100 text-burgundy px-2.5 py-1 rounded-full font-medium whitespace-nowrap"
+        >
+          Saves to Current Month
+        </span>
+
+      </div>
+
+
+      <form
+        id="entryForm"
+        onsubmit="submitData(event)"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4"
+      >
+
+
+        <!-- TYPE -->
+
+        <div>
+
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            Entry Type
+          </label>
+
+          <select
+            id="type"
+            onchange="toggleFields()"
+            class="w-full p-2.5 border border-gray-300 rounded-lg bg-gray-50 text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+            <option value="sale">
+              Customer Sale Order
+            </option>
+
+            <option value="purchase">
+              Inventory Purchase (Stock)
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- DATE -->
+
+        <div>
+
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            Date
+          </label>
+
+          <input
+            type="date"
+            id="date"
+            required
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+        </div>
+
+
+        <!-- CUSTOMER -->
+
+        <div id="customerField">
+
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            Customer Name
+          </label>
+
+          <input
+            type="text"
+            id="customer"
+            placeholder="e.g. Sana Malik"
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+        </div>
+
+
+        <!-- PHONE -->
+
+        <div id="phoneField">
+
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            Phone Number
+          </label>
+
+          <input
+            type="text"
+            id="phone"
+            placeholder="e.g. 0300 1234567"
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+        </div>
+
+
+        <!-- ADDRESS -->
+
+        <div
+          id="addressField"
+          class="sm:col-span-2"
+        >
+
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            Delivery Address
+          </label>
+
+          <input
+            type="text"
+            id="address"
+            placeholder="e.g. House 12, Street 4, Gulberg, Lahore"
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+        </div>
+
+
+        <!-- PRODUCT -->
+
+        <div>
+
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            Product Name
+          </label>
+
+          <input
+            type="text"
+            id="product"
+            placeholder="e.g. Velvet Lipstick"
+            required
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+        </div>
+
+
+        <!-- PRICE -->
+
+        <div>
+
+          <label
+            id="priceLabel"
+            class="block text-xs font-bold text-gray-700 mb-1"
+          >
+            Selling Price (Per Unit)
+          </label>
+
+          <input
+            type="number"
+            id="price"
+            placeholder="Rs."
+            min="0"
+            step="0.01"
+            required
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+        </div>
+
+
+        <!-- COST -->
+
+        <div id="costPriceField">
+
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            Purchase Cost (For Profit Calc)
+          </label>
+
+          <input
+            type="number"
+            id="costPrice"
+            placeholder="Rs. Cost price"
+            min="0"
+            step="0.01"
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+        </div>
+
+
+        <!-- QUANTITY -->
+
+        <div>
+
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            Quantity
+          </label>
+
+          <input
+            type="number"
+            id="quantity"
+            value="1"
+            min="1"
+            step="1"
+            required
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+        </div>
+
+
+        <!-- SHIPPING -->
+
+        <div id="shippingField">
+
+          <label class="block text-xs font-bold text-gray-700 mb-1">
+            Shipping Charges
+          </label>
+
+          <input
+            type="number"
+            id="shipping"
+            placeholder="Rs. 0 for Free"
+            value="0"
+            min="0"
+            step="0.01"
+            class="w-full p-2.5 border border-gray-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-burgundy focus:outline-none"
+          >
+
+        </div>
+
+
+        <!-- BUTTON -->
+
+        <div
+          class="sm:col-span-2 md:col-span-3 flex items-end pt-2"
+        >
+
+          <button
+            type="submit"
+            id="submitBtn"
+            class="w-full theme-burgundy text-white font-bold py-2.5 px-4 rounded-lg shadow-md transition-all duration-200 flex justify-center items-center gap-2 text-xs sm:text-sm"
+          >
+
+            <span>💾</span>
+
+            <span id="submitBtnText">
+              Save Entry to Sheet
+            </span>
+
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         TRANSACTION LOG
+    ====================================================== -->
+
+    <div
+      class="bg-white p-3 sm:p-6 rounded-xl shadow-md border border-pink-100 w-full overflow-hidden"
+    >
+
+      <div
+        class="flex justify-between items-center border-b border-pink-100 pb-3 mb-4"
+      >
+
+        <h2
+          class="text-sm sm:text-lg font-bold text-burgundy font-serif-title flex items-center gap-2"
+        >
+          <span>📋</span>
+          Transactions & Sales Log
+        </h2>
+
+        <button
+          onclick="loadData()"
+          class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-2.5 py-1.5 rounded-lg border"
+        >
+          🔄 Refresh
+        </button>
+
+      </div>
+
+
+      <div class="table-scroll w-full">
+
+        <table
+          class="w-full text-left border-collapse text-xs min-w-[850px]"
+        >
+
+          <thead>
+
+            <tr
+              class="bg-pink-50 text-burgundy border-b border-pink-200 font-bold"
+            >
+
+              <th class="p-2.5">
+                Date
+              </th>
+
+              <th class="p-2.5">
+                Type
+              </th>
+
+              <th class="p-2.5">
+                Customer Details
+              </th>
+
+              <th class="p-2.5">
+                Product
+              </th>
+
+              <th class="p-2.5">
+                Qty
+              </th>
+
+              <th class="p-2.5">
+                Total Amount
+              </th>
+
+              <th class="p-2.5">
+                Profit
+              </th>
+
+              <th class="p-2.5">
+                Action
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody
+            id="salesTable"
+            class="divide-y divide-gray-100"
+          >
+
+            <tr>
+
+              <td
+                colspan="8"
+                class="p-5 text-center text-gray-400"
+              >
+                Loading data from Google Sheet...
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+  </main>
+
+
+  <!-- =======================================================
+       INVOICE MODAL
+  ======================================================== -->
+
+  <div
+    id="invoiceModal"
+    class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-2 sm:p-4 z-50"
+  >
+
+    <div
+      class="bg-white rounded-2xl max-w-xl w-full p-4 sm:p-6 shadow-2xl relative border-2 border-gold max-h-[95vh] overflow-y-auto"
+    >
+
+      <!-- Close -->
+
+      <button
+        onclick="closeInvoiceModal()"
+        class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-lg z-10"
+      >
+        ✕
+      </button>
+
+
+      <!-- ===================================================
+           PRINTABLE INVOICE
+      ==================================================== -->
+
+      <div
+        id="invoicePrintArea"
+        class="bg-[#FFF8F9] p-4 sm:p-5 rounded-xl border border-pink-200 space-y-3.5 text-gray-800"
+      >
+
+
+        <!-- Banner -->
+
+        <div
+          class="w-full rounded-xl overflow-hidden border border-gold shadow-sm max-h-36 mb-1"
+        >
+
+          <img
+            src="Inovice image.png"
+            alt="Afsheen Collection"
+            class="w-full h-full object-cover object-center"
+            onerror="this.onerror=null; this.src='Afsheen Beauty Collection Badge.png';"
+          >
+
+        </div>
+
+
+        <!-- Invoice Header -->
+
+        <div
+          class="flex flex-row justify-between items-center border-b border-pink-200 pb-2 text-xs"
+        >
+
+          <div>
+
+            <span
+              id="invNoBadge"
+              class="inline-block bg-pink-100 text-burgundy font-bold px-2.5 py-0.5 rounded-full border border-pink-200"
+            >
+              # AC-000000
+            </span>
+
+          </div>
+
+
+          <div
+            class="text-right text-[11px] text-gray-600 space-y-0.5"
+          >
+
+            <p>
+              <strong>Date:</strong>
+              <span id="invDate">--</span>
+            </p>
+
+            <p>
+              <strong>Payment:</strong>
+              Cash on Delivery
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- Categories -->
+
+        <div
+          class="flex justify-center items-center gap-3 text-[10px] font-medium text-gray-600 border-b border-pink-100 pb-1.5"
+        >
+
+          <span>Makeup</span>
+          •
+          <span>Skincare</span>
+          •
+          <span>Beauty Essentials</span>
+
+        </div>
+
+
+        <!-- Customer / Order -->
+
+        <div
+          class="grid grid-cols-2 gap-2 text-xs bg-white p-3 rounded-xl border border-pink-100 shadow-sm"
+        >
+
+          <div>
+
+            <p
+              class="font-bold text-burgundy border-b border-pink-100 pb-1 mb-1 text-[11px]"
+            >
+              👤 Bill To:
+            </p>
+
+            <p>
+              <strong>Name:</strong>
+              <span
+                id="invCustomer"
+                class="font-semibold text-gray-900"
+              >
+                --
+              </span>
+            </p>
+
+            <p>
+              <strong>Phone:</strong>
+              <span id="invPhone">
+                --
+              </span>
+            </p>
+
+            <p>
+              <strong>Address:</strong>
+              <span id="invAddress">
+                --
+              </span>
+            </p>
+
+          </div>
+
+
+          <div>
+
+            <p
+              class="font-bold text-burgundy border-b border-pink-100 pb-1 mb-1 text-[11px]"
+            >
+              📦 Order Info:
+            </p>
+
+            <p>
+              <strong>Order No:</strong>
+              <span id="invOrderNo">
+                --
+              </span>
+            </p>
+
+            <p>
+              <strong>Status:</strong>
+              Confirmed & Verified
+            </p>
+
+            <p>
+              <strong>Shipping:</strong>
+              Standard Delivery
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <!-- Product Table -->
+
+        <div class="overflow-x-auto">
+
+          <table
+            class="w-full text-xs text-left border-collapse"
+          >
+
+            <thead>
+
+              <tr
+                class="bg-pink-100 text-burgundy font-bold border-b border-pink-200"
+              >
+
+                <th class="py-2 px-2 text-center w-6">
+                  #
+                </th>
+
+                <th class="py-2 px-2">
+                  PRODUCT NAME
+                </th>
+
+                <th class="py-2 px-2 text-center">
+                  QTY
+                </th>
+
+                <th class="py-2 px-2 text-right">
+                  UNIT PRICE
+                </th>
+
+                <th class="py-2 px-2 text-right">
+                  TOTAL
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            <tbody
+              class="divide-y divide-pink-100 bg-white"
+            >
+
+              <tr>
+
+                <td
+                  class="py-2 px-2 text-center text-gray-500 font-bold"
+                >
+                  1
+                </td>
+
+                <td
+                  id="invProduct"
+                  class="py-2 px-2 font-semibold text-gray-800"
+                >
+                  --
+                </td>
+
+                <td
+                  id="invQty"
+                  class="py-2 px-2 text-center font-bold"
+                >
+                  --
+                </td>
+
+                <td
+                  id="invUnitPrice"
+                  class="py-2 px-2 text-right"
+                >
+                  --
+                </td>
+
+                <td
+                  id="invTotal"
+                  class="py-2 px-2 text-right font-bold text-burgundy"
+                >
+                  --
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+
+        <!-- Summary -->
+
+        <div
+          class="grid grid-cols-2 gap-2 items-end pt-1"
+        >
+
+          <div
+            class="bg-pink-50/60 p-2.5 rounded-xl border border-pink-100 text-[11px]"
+          >
+
+            <p
+              class="font-bold text-burgundy font-script text-sm"
+            >
+              ♡ A little note for you...
+            </p>
+
+            <p
+              class="text-[10px] text-gray-600 mt-0.5 italic"
+            >
+              We hope you love your purchase! ♡
+              Contact us anytime if needed.
+            </p>
+
+          </div>
+
+
+          <div
+            class="bg-white p-2.5 rounded-xl border border-pink-100 text-xs space-y-1"
+          >
+
+            <div
+              class="flex justify-between text-gray-600"
+            >
+
+              <span>
+                Sub Total:
+              </span>
+
+              <span
+                id="invSubTotal"
+                class="font-bold"
+              >
+                Rs. 0
+              </span>
+
+            </div>
+
+
+            <div
+              class="flex justify-between text-gray-600"
+            >
+
+              <span>
+                Shipping:
+              </span>
+
+              <span
+                id="invShippingBadge"
+                class="font-bold text-green-600"
+              >
+                Free Delivery
+              </span>
+
+            </div>
+
+
+            <div
+              class="flex justify-between text-xs sm:text-sm font-extrabold text-burgundy border-t border-pink-200 pt-1"
+            >
+
+              <span>
+                Total Amount:
+              </span>
+
+              <span id="invGrandTotal">
+                Rs. 0
+              </span>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- Footer -->
+
+        <div
+          class="border-t border-pink-200 pt-2.5 text-[11px] text-gray-700 flex justify-between items-center px-1"
+        >
+
+          <div
+            class="flex items-center gap-1 font-bold text-green-700"
+          >
+
+            <span>
+              📱
+            </span>
+
+            <span>
+              WhatsApp: +92 322 5331900
+            </span>
+
+          </div>
+
+
+          <span
+            class="font-script text-pink-600 text-sm font-bold"
+          >
+            Stay Beautiful ♡
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <!-- Invoice Actions -->
+
+      <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+        <button
+          onclick="shareNativeInvoiceFile()"
+          class="w-full bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2"
+        >
+
+          📲 Share Invoice
+
+        </button>
+
+
+        <button
+          onclick="printInvoice()"
+          class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold text-sm py-2.5 px-4 rounded-lg shadow flex items-center justify-center gap-2"
+        >
+
+          🖨️ Print Invoice
+
+        </button>
+
+      </div>
+
     </div>
 
   </div>
 
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwDth4blF8UlnFaQuqH1y-h6m1scQJt_VaAaLeZNeLf1igu5HiNXgO5mnYfA7N5-xPPYg/exec";
+</div>
 
-    let rawData = { records: [] };
 
-    // PASSWORD UPDATE TO: Ibr@him1234**
-    function handleLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-      const pass = document.getElementById("loginPassword").value.trim();
-      const errorBox = document.getElementById("loginError");
-      const box = document.getElementById("loginBox");
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
 
-      if (email === "ibrahim@afsheencollection.pk" && pass === "Ibr@him1234**") {
-        document.getElementById("loginScreen").classList.add("hidden");
-        document.getElementById("dashboardWrapper").classList.remove("hidden");
-        loadData();
-      } else {
-        errorBox.classList.remove("hidden");
-        box.classList.add("animate-shake");
-        setTimeout(() => box.classList.remove("animate-shake"), 400);
-      }
+<script>
+
+/* ============================================================
+   CONFIGURATION
+============================================================ */
+
+/*
+ * YOUR GOOGLE APPS SCRIPT WEB APP
+ */
+
+const SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbzO6iEjfTL19jjO7hq-ywRqc8BtWKiVSrPUnTmlXkEiKZeR1v7u8lyuVxHoM-ptk39h0Q/exec";
+
+
+/*
+ * YOUR GOOGLE SHEET
+ */
+
+const SHEET_ID =
+  "181SCKxnCfYdsCC3RvdptwqkP--SIdv-NYNSf7upuRRc";
+
+
+/*
+ * LOGIN
+ */
+
+const LOGIN_EMAIL =
+  "ibrahim@afsheencollection.pk";
+
+const LOGIN_PASSWORD =
+  "Ibr@him1234**";
+
+
+/* ============================================================
+   GLOBAL DATA
+============================================================ */
+
+let rawData = {
+  records: [],
+  tabs: []
+};
+
+let isLoading = false;
+
+
+/* ============================================================
+   INITIALIZATION
+============================================================ */
+
+document.addEventListener("DOMContentLoaded", function() {
+
+  setTodayDate();
+
+  toggleFields();
+
+  document
+    .getElementById("pageLoader")
+    .classList.add("hidden");
+
+});
+
+
+/* ============================================================
+   LOGIN
+============================================================ */
+
+function handleLogin(e) {
+
+  e.preventDefault();
+
+  const email =
+    document
+      .getElementById("loginEmail")
+      .value
+      .trim()
+      .toLowerCase();
+
+  const pass =
+    document
+      .getElementById("loginPassword")
+      .value
+      .trim();
+
+  const errorBox =
+    document.getElementById("loginError");
+
+  const box =
+    document.getElementById("loginBox");
+
+
+  if (
+    email === LOGIN_EMAIL.toLowerCase() &&
+    pass === LOGIN_PASSWORD
+  ) {
+
+    errorBox.classList.add("hidden");
+
+    document
+      .getElementById("loginScreen")
+      .classList.add("hidden");
+
+    document
+      .getElementById("dashboardWrapper")
+      .classList.remove("hidden");
+
+    setTodayDate();
+
+    loadData();
+
+  } else {
+
+    errorBox.classList.remove("hidden");
+
+    box.classList.remove("animate-shake");
+
+    void box.offsetWidth;
+
+    box.classList.add("animate-shake");
+
+  }
+
+}
+
+
+/* ============================================================
+   LOGOUT
+============================================================ */
+
+function logout() {
+
+  rawData = {
+    records: [],
+    tabs: []
+  };
+
+  document
+    .getElementById("dashboardWrapper")
+    .classList.add("hidden");
+
+  document
+    .getElementById("loginScreen")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("loginPassword")
+    .value = "";
+
+}
+
+
+/* ============================================================
+   DATE
+============================================================ */
+
+function setTodayDate() {
+
+  const dateInput =
+    document.getElementById("date");
+
+  if (!dateInput) return;
+
+  const now = new Date();
+
+  const year =
+    now.getFullYear();
+
+  const month =
+    String(now.getMonth() + 1).padStart(2, "0");
+
+  const day =
+    String(now.getDate()).padStart(2, "0");
+
+  dateInput.value =
+    `${year}-${month}-${day}`;
+
+}
+
+
+/* ============================================================
+   FORMAT DATE
+============================================================ */
+
+function formatDateDisplay(dateVal) {
+
+  if (!dateVal) return "-";
+
+  const clean =
+    String(dateVal)
+      .split("T")[0];
+
+  const parts =
+    clean.split("-");
+
+  if (
+    parts.length === 3 &&
+    parts[2]
+  ) {
+
+    return (
+      parts[2] +
+      "/" +
+      parts[1] +
+      "/" +
+      parts[0]
+    );
+
+  }
+
+  return clean;
+
+}
+
+
+/* ============================================================
+   ESCAPE HTML
+============================================================ */
+
+function escapeHtml(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return "";
+  }
+
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+
+/* ============================================================
+   NUMBER FORMAT
+============================================================ */
+
+function money(value) {
+
+  const number =
+    Number(value) || 0;
+
+  return number.toLocaleString(
+    "en-PK",
+    {
+      maximumFractionDigits: 2
     }
+  );
 
-    function formatDateDisplay(dateVal) {
-      if (!dateVal) return '-';
-      const clean = String(dateVal).split('T')[0];
-      const parts = clean.split('-');
-      if(parts.length === 3 && parts[2].length > 0) {
-        return `${parts[2]}/${parts[1]}/${parts[0]}`;
-      }
-      return clean;
-    }
+}
 
-    document.getElementById('date').valueAsDate = new Date();
 
-    function toggleFields() {
-      const type = document.getElementById("type").value;
-      const isSale = type === "sale";
-      
-      document.getElementById("customerField").style.display = isSale ? "block" : "none";
-      document.getElementById("phoneField").style.display = isSale ? "block" : "none";
-      document.getElementById("addressField").style.display = isSale ? "block" : "none";
-      document.getElementById("shippingField").style.display = isSale ? "block" : "none";
-      document.getElementById("costPriceField").style.display = isSale ? "block" : "none";
-      
-      document.getElementById("priceLabel").innerText = isSale ? "Selling Price (Per Unit)" : "Purchase Price (Per Unit)";
-    }
+/* ============================================================
+   TOGGLE SALE / PURCHASE FIELDS
+============================================================ */
 
-    function loadData() {
-      const table = document.getElementById("salesTable");
-      table.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-500">Syncing live data from Google Sheet...</td></tr>`;
+function toggleFields() {
 
-      const oldScript = document.getElementById('jsonpScript');
-      if (oldScript) oldScript.remove();
+  const type =
+    document.getElementById("type").value;
 
-      const script = document.createElement('script');
-      script.id = 'jsonpScript';
-      
-      window.handleScriptResponse = function(data) {
-        rawData = data;
-        populateMonths();
-        filterData();
-      };
+  const isSale =
+    type === "sale";
 
-      script.src = SCRIPT_URL + "?action=getData&callback=handleScriptResponse&ts=" + new Date().getTime();
-      script.onerror = function() {
-        table.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-red-500 font-bold">Unable to connect. Check Google Apps Script deployment.</td></tr>`;
-      };
-      document.body.appendChild(script);
-    }
 
-    function populateMonths() {
-      const tabs = new Set();
-      tabs.add("Current Month");
+  document
+    .getElementById("customerField")
+    .style.display =
+    isSale ? "block" : "none";
 
-      if(rawData.records && rawData.records.length > 1) {
-        rawData.records.slice(1).forEach(row => {
-          const tabName = row[9];
-          if(tabName && String(tabName).trim() !== "") {
-            tabs.add(String(tabName).trim());
-          }
-        });
-      }
 
-      const filter = document.getElementById("monthFilter");
-      const previousSelection = filter.value;
-      filter.innerHTML = '';
-      
-      Array.from(tabs).forEach(t => {
-        filter.innerHTML += `<option value="${t}">${t === 'Current Month' ? '📅 Current Month (Active)' : '📂 ' + t}</option>`;
-      });
+  document
+    .getElementById("phoneField")
+    .style.display =
+    isSale ? "block" : "none";
 
-      filter.innerHTML += `<option value="All">📊 All Sheets Summary</option>`;
 
-      if (previousSelection && (tabs.has(previousSelection) || previousSelection === "All")) {
-        filter.value = previousSelection;
-      } else {
-        filter.value = "Current Month";
-      }
-    }
+  document
+    .getElementById("addressField")
+    .style.display =
+    isSale ? "block" : "none";
 
-    function filterData() {
-      const selectedTab = document.getElementById("monthFilter").value;
-      
-      let records = (rawData.records && rawData.records.length > 1) ? rawData.records.slice(1) : [];
 
-      if (selectedTab !== "All") {
-        records = records.filter(r => {
-          const rowTab = r[9] ? String(r[9]).trim() : "Current Month";
-          return rowTab.toLowerCase() === selectedTab.trim().toLowerCase();
-        });
-      }
+  document
+    .getElementById("shippingField")
+    .style.display =
+    isSale ? "block" : "none";
 
-      let salesRecords = records.filter(r => String(r[1]).toLowerCase() === 'sale' || !r[1]);
-      let purchaseRecords = records.filter(r => String(r[1]).toLowerCase() === 'purchase');
 
-      let totalSales = salesRecords.reduce((acc, r) => acc + (Number(r[6]) || 0), 0);
-      let totalPurchase = purchaseRecords.reduce((acc, r) => acc + (Number(r[6]) || 0), 0);
-      let netProfit = salesRecords.reduce((acc, r) => acc + (Number(r[8]) || 0), 0);
+  document
+    .getElementById("costPriceField")
+    .style.display =
+    isSale ? "block" : "none";
 
-      document.getElementById("totalSales").innerText = "Rs. " + totalSales.toLocaleString();
-      document.getElementById("totalPurchase").innerText = "Rs. " + totalPurchase.toLocaleString();
-      document.getElementById("netProfit").innerText = "Rs. " + netProfit.toLocaleString();
 
-      const table = document.getElementById("salesTable");
-      table.innerHTML = "";
+  document
+    .getElementById("priceLabel")
+    .innerText =
+    isSale
+      ? "Selling Price (Per Unit)"
+      : "Purchase Price (Per Unit)";
 
-      if(records.length === 0) {
-        table.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-gray-400">No records found in ${selectedTab}.</td></tr>`;
-        return;
-      }
 
-      records.slice().reverse().slice(0, 30).forEach((r) => {
-        const displayDate = formatDateDisplay(r[0]);
-        const type = r[1] || 'Sale';
-        const isSale = String(type).toLowerCase() === 'sale';
-        const customer = r[2] || 'Guest Customer';
-        const product = r[3] || 'Item';
-        const price = Number(r[4]) || 0;
-        const qty = Number(r[5]) || 1;
-        const total = Number(r[6]) || (price * qty);
-        const profit = Number(r[8]) || 0;
-        const phone = r[10] || '-';
-        const address = r[11] || '-';
-        const shipping = Number(r[12]) || 0;
+  const costInput =
+    document.getElementById("costPrice");
 
-        table.innerHTML += `
-          <tr class="hover:bg-pink-50/50 transition-colors">
-            <td class="p-2 sm:p-2.5 font-medium text-gray-700">${displayDate}</td>
-            <td class="p-2 sm:p-2.5"><span class="${isSale ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} text-[10px] px-2 py-0.5 rounded-full font-bold">${type}</span></td>
-            <td class="p-2 sm:p-2.5 text-gray-800 font-semibold">${customer}</td>
-            <td class="p-2 sm:p-2.5 text-gray-700">${product}</td>
-            <td class="p-2 sm:p-2.5 text-gray-600">${qty}</td>
-            <td class="p-2 sm:p-2.5 font-bold text-gray-800">Rs. ${total.toLocaleString()}</td>
-            <td class="p-2 sm:p-2.5 font-bold ${isSale ? (profit >= 0 ? 'text-green-600' : 'text-red-500') : 'text-gray-400'}">${isSale ? 'Rs. ' + profit.toLocaleString() : '-'}</td>
-            <td class="p-2 sm:p-2.5">
-              ${isSale ? `
-                <button onclick="openInvoiceModal('${displayDate}', '${customer.replace(/'/g, "\\'")}', '${product.replace(/'/g, "\\'")}', ${qty}, ${price},${shipping}, '${phone.replace(/'/g, "\\'")}', '${address.replace(/'/g, "\\'")}')" class="bg-pink-100 hover:bg-pink-200 text-burgundy text-xs px-2 py-1 rounded-md font-bold shadow-sm transition">
-                  🧾 Invoice
-                </button>
-              ` : '<span class="text-xs text-gray-400">Stock In</span>'}
-            </td>
-          </tr>`;
-      });
-    }
+  if (isSale) {
 
-    async function submitData(e) {
-      e.preventDefault();
-      const btn = document.getElementById("submitBtn");
-      btn.disabled = true;
-      btn.innerHTML = "<span>⏳</span> Saving...";
+    costInput.removeAttribute("disabled");
 
-      const payload = {
-        type: document.getElementById("type").value,
-        date: document.getElementById("date").value,
-        customer: document.getElementById("customer").value,
-        phone: document.getElementById("phone").value,
-        address: document.getElementById("address").value,
-        product: document.getElementById("product").value,
-        price: document.getElementById("price").value,
-        costPrice: document.getElementById("costPrice").value || 0,
-        quantity: document.getElementById("quantity").value,
-        shipping: document.getElementById("shipping").value || 0
-      };
+  } else {
+
+    costInput.value = "0";
+
+  }
+
+}
+
+
+/* ============================================================
+   CONNECTION STATUS
+============================================================ */
+
+function setConnectionStatus(
+  text,
+  type
+) {
+
+  const el =
+    document.getElementById(
+      "connectionStatus"
+    );
+
+  if (!el) return;
+
+
+  if (type === "success") {
+
+    el.innerHTML =
+      '<span class="text-green-600 font-semibold">● Connected to Google Sheet</span>';
+
+  } else if (type === "error") {
+
+    el.innerHTML =
+      '<span class="text-red-600 font-semibold">● Connection Error</span>';
+
+  } else {
+
+    el.innerHTML =
+      '<span class="text-amber-600 font-semibold">● Connecting...</span>';
+
+  }
+
+}
+
+
+/* ============================================================
+   LOAD DATA
+============================================================ */
+
+function loadData() {
+
+  if (isLoading) return;
+
+  isLoading = true;
+
+
+  const table =
+    document.getElementById(
+      "salesTable"
+    );
+
+
+  const refreshBtn =
+    document.getElementById(
+      "refreshBtn"
+    );
+
+
+  setConnectionStatus(
+    "Connecting...",
+    "loading"
+  );
+
+
+  if (refreshBtn) {
+
+    refreshBtn.disabled = true;
+
+    refreshBtn.innerText =
+      "⏳ Loading...";
+
+  }
+
+
+  table.innerHTML = `
+    <tr>
+      <td
+        colspan="8"
+        class="p-5 text-center text-gray-500"
+      >
+        <div class="flex justify-center items-center gap-2">
+          <div class="loading-spin"
+               style="border-color:#e5bfc8;border-top-color:#8B263E;">
+          </div>
+          <span>Syncing Google Sheet...</span>
+        </div>
+      </td>
+    </tr>
+  `;
+
+
+  /*
+   * Remove previous JSONP script
+   */
+
+  const oldScript =
+    document.getElementById(
+      "jsonpScript"
+    );
+
+  if (oldScript) {
+    oldScript.remove();
+  }
+
+
+  /*
+   * Unique callback
+   */
+
+  const callbackName =
+    "handleScriptResponse_" +
+    Date.now();
+
+
+  /*
+   * Global callback
+   */
+
+  window[callbackName] =
+    function(data) {
 
       try {
-        await fetch(SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
 
-        alert(`Entry Saved Successfully to 'Current Month'!`);
-        document.getElementById("entryForm").reset();
-        document.getElementById('date').valueAsDate = new Date();
-        toggleFields();
-        
-        setTimeout(loadData, 1200);
-      } catch(err) {
-        alert("Error saving data: " + err);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = "<span>💾</span> Save Entry to Sheet";
-      }
-    }
+        rawData = data || {
+          records: [],
+          tabs: []
+        };
 
-    function openInvoiceModal(date, customer, product, qty, price, shipping, phone, address) {
-      const itemSubTotal = Number(price) * Number(qty);
-      const shippingAmount = Number(shipping) || 0;
-      const grandTotalAmount = itemSubTotal + shippingAmount;
 
-      document.getElementById("invDate").innerText = date;
-      document.getElementById("invCustomer").innerText = customer || 'Guest Customer';
-      document.getElementById("invPhone").innerText = (phone && phone !== 'undefined') ? phone : '-';
-      document.getElementById("invAddress").innerText = (address && address !== 'undefined') ? address : 'Standard Delivery';
-      
-      document.getElementById("invProduct").innerText = product;
-      document.getElementById("invQty").innerText = qty;
-      document.getElementById("invUnitPrice").innerText = Number(price).toLocaleString();
-      document.getElementById("invTotal").innerText = itemSubTotal.toLocaleString();
-      
-      document.getElementById("invSubTotal").innerText = "Rs. " + itemSubTotal.toLocaleString();
-      
-      if (shippingAmount > 0) {
-        document.getElementById("invShippingBadge").innerText = "Rs. " + shippingAmount.toLocaleString();
-        document.getElementById("invShippingBadge").className = "font-bold text-gray-800";
-      } else {
-        document.getElementById("invShippingBadge").innerText = "Free Delivery";
-        document.getElementById("invShippingBadge").className = "font-bold text-green-600";
-      }
+        if (
+          !rawData.records
+        ) {
 
-      document.getElementById("invGrandTotal").innerText = "Rs. " + grandTotalAmount.toLocaleString();
-      
-      const randNum = Math.floor(100000 + Math.random() * 900000);
-      document.getElementById("invNoBadge").innerText = `# AC-${randNum}`;
-      document.getElementById("invOrderNo").innerText = `AC-${randNum}`;
+          rawData.records = [];
 
-      document.getElementById("invoiceModal").classList.remove("hidden");
-    }
-
-    function closeInvoiceModal() {
-      document.getElementById("invoiceModal").classList.add("hidden");
-    }
-
-    async function shareNativeInvoiceFile() {
-      const element = document.getElementById('invoicePrintArea');
-      const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
-
-      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
-      canvas.toBlob(async (blob) => {
-        const file = new File([blob], `AfsheenCollection_Invoice_${custName}.png`, { type: 'image/png' });
-
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              files: [file],
-              title: 'Customer Invoice - Afsheen Collection',
-              text: 'Here is your official sales invoice from Afsheen Collection.'
-            });
-          } catch (err) {
-            console.log('Share canceled:', err);
-          }
-        } else {
-          const link = document.createElement('a');
-          link.download = `AfsheenCollection_Invoice_${custName}.png`;
-          link.href = canvas.toDataURL('image/png');
-          link.click();
-          alert("Invoice image downloaded!");
         }
-      });
+
+
+        if (
+          !rawData.tabs
+        ) {
+
+          rawData.tabs = [];
+
+        }
+
+
+        populateMonths();
+
+        filterData();
+
+        setConnectionStatus(
+          "Connected",
+          "success"
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Data processing error:",
+          error
+        );
+
+        showLoadError(
+          "Data received but could not be processed."
+        );
+
+      } finally {
+
+        isLoading = false;
+
+        if (refreshBtn) {
+
+          refreshBtn.disabled =
+            false;
+
+          refreshBtn.innerText =
+            "🔄 Refresh";
+
+        }
+
+        try {
+          delete window[callbackName];
+        } catch (e) {}
+
+      }
+
+    };
+
+
+  /*
+   * JSONP URL
+   */
+
+  const script =
+    document.createElement("script");
+
+
+  script.id =
+    "jsonpScript";
+
+
+  script.src =
+    SCRIPT_URL +
+    "?action=getData" +
+    "&callback=" +
+    encodeURIComponent(callbackName) +
+    "&ts=" +
+    Date.now();
+
+
+  script.async = true;
+
+
+  /*
+   * Error
+   */
+
+  script.onerror =
+    function() {
+
+      isLoading = false;
+
+      if (refreshBtn) {
+
+        refreshBtn.disabled =
+          false;
+
+        refreshBtn.innerText =
+          "🔄 Refresh";
+
+      }
+
+      setConnectionStatus(
+        "Connection Error",
+        "error"
+      );
+
+
+      showLoadError(
+        "Unable to connect to Google Apps Script. Please check deployment/access."
+      );
+
+
+      try {
+        delete window[callbackName];
+      } catch (e) {}
+
+    };
+
+
+  /*
+   * Timeout
+   */
+
+  const timeout =
+    setTimeout(
+      function() {
+
+        if (!isLoading) return;
+
+        isLoading = false;
+
+        if (refreshBtn) {
+
+          refreshBtn.disabled =
+            false;
+
+          refreshBtn.innerText =
+            "🔄 Refresh";
+
+        }
+
+        setConnectionStatus(
+          "Connection Timeout",
+          "error"
+        );
+
+        showLoadError(
+          "Google Sheet took too long to respond. Please refresh."
+        );
+
+      },
+      30000
+    );
+
+
+  /*
+   * Clear timeout when callback arrives
+   */
+
+  const oldCallback =
+    window[callbackName];
+
+  window[callbackName] =
+    function(data) {
+
+      clearTimeout(timeout);
+
+      oldCallback(data);
+
+    };
+
+
+  document.body.appendChild(
+    script
+  );
+
+}
+
+
+/* ============================================================
+   LOAD ERROR
+============================================================ */
+
+function showLoadError(message) {
+
+  const table =
+    document.getElementById(
+      "salesTable"
+    );
+
+  table.innerHTML = `
+    <tr>
+      <td
+        colspan="8"
+        class="p-5 text-center"
+      >
+
+        <div class="text-red-500 font-bold mb-1">
+          ❌ Unable to Load Data
+        </div>
+
+        <div class="text-xs text-gray-500">
+          ${escapeHtml(message)}
+        </div>
+
+        <button
+          onclick="loadData()"
+          class="mt-3 bg-burgundy text-white bg-[#8B263E] px-4 py-2 rounded-lg text-xs font-bold"
+        >
+          🔄 Try Again
+        </button>
+
+      </td>
+    </tr>
+  `;
+
+}
+
+
+/* ============================================================
+   POPULATE MONTH / TAB FILTER
+============================================================ */
+
+function populateMonths() {
+
+  const filter =
+    document.getElementById(
+      "monthFilter"
+    );
+
+
+  const tabs =
+    new Set();
+
+
+  /*
+   * Always Current Month
+   */
+
+  tabs.add(
+    "Current Month"
+  );
+
+
+  /*
+   * Backend supplied tabs
+   */
+
+  if (
+    Array.isArray(
+      rawData.tabs
+    )
+  ) {
+
+    rawData.tabs.forEach(
+      function(tab) {
+
+        if (
+          tab &&
+          String(tab).trim()
+        ) {
+
+          tabs.add(
+            String(tab).trim()
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /*
+   * Also detect Month column
+   */
+
+  if (
+    rawData.records &&
+    rawData.records.length > 1
+  ) {
+
+    rawData.records
+      .slice(1)
+      .forEach(
+        function(row) {
+
+          const month =
+            row[9];
+
+          if (
+            month &&
+            String(month).trim()
+          ) {
+
+            tabs.add(
+              String(month).trim()
+            );
+
+          }
+
+        }
+      );
+
+  }
+
+
+  const previous =
+    filter.value;
+
+
+  filter.innerHTML = "";
+
+
+  tabs.forEach(
+    function(tab) {
+
+      const option =
+        document.createElement(
+          "option"
+        );
+
+      option.value = tab;
+
+      option.textContent =
+        tab === "Current Month"
+          ? "📅 Current Month (Active)"
+          : "📂 " + tab;
+
+      filter.appendChild(
+        option
+      );
+
     }
+  );
+
+
+  /*
+   * All sheets
+   */
+
+  const allOption =
+    document.createElement(
+      "option"
+    );
+
+  allOption.value =
+    "All";
+
+  allOption.textContent =
+    "📊 All Sheets Summary";
+
+  filter.appendChild(
+    allOption
+  );
+
+
+  /*
+   * Restore previous
+   */
+
+  if (
+    previous &&
+    (
+      tabs.has(previous) ||
+      previous === "All"
+    )
+  ) {
+
+    filter.value =
+      previous;
+
+  } else {
+
+    filter.value =
+      "Current Month";
+
+  }
+
+}
+
+
+/* ============================================================
+   FILTER DATA
+============================================================ */
+
+function filterData() {
+
+  const selectedTab =
+    document.getElementById(
+      "monthFilter"
+    ).value;
+
+
+  let records = [];
+
+
+  if (
+    rawData.records &&
+    rawData.records.length > 1
+  ) {
+
+    records =
+      rawData.records.slice(1);
+
+  }
+
+
+  /*
+   * Filter selected tab
+   */
+
+  if (
+    selectedTab !== "All"
+  ) {
+
+    records =
+      records.filter(
+        function(row) {
+
+          const rowTab =
+            row[9]
+              ? String(row[9]).trim()
+              : "Current Month";
+
+
+          return (
+            rowTab.toLowerCase() ===
+            selectedTab
+              .trim()
+              .toLowerCase()
+          );
+
+        }
+      );
+
+  }
+
+
+  /*
+   * Sales
+   */
+
+  const salesRecords =
+    records.filter(
+      function(row) {
+
+        const type =
+          String(
+            row[1] || "Sale"
+          ).toLowerCase();
+
+        return (
+          type === "sale" ||
+          type === ""
+        );
+
+      }
+    );
+
+
+  /*
+   * Purchases
+   */
+
+  const purchaseRecords =
+    records.filter(
+      function(row) {
+
+        return (
+          String(
+            row[1] || ""
+          ).toLowerCase() ===
+          "purchase"
+        );
+
+      }
+    );
+
+
+  /*
+   * KPI
+   */
+
+  const totalSales =
+    salesRecords.reduce(
+      function(total, row) {
+
+        return (
+          total +
+          (Number(row[6]) || 0)
+        );
+
+      },
+      0
+    );
+
+
+  const totalPurchase =
+    purchaseRecords.reduce(
+      function(total, row) {
+
+        return (
+          total +
+          (Number(row[6]) || 0)
+        );
+
+      },
+      0
+    );
+
+
+  const netProfit =
+    salesRecords.reduce(
+      function(total, row) {
+
+        return (
+          total +
+          (Number(row[8]) || 0)
+        );
+
+      },
+      0
+    );
+
+
+  /*
+   * Update KPI
+   */
+
+  document
+    .getElementById("totalSales")
+    .innerText =
+    "Rs. " + money(totalSales);
+
+
+  document
+    .getElementById("totalPurchase")
+    .innerText =
+    "Rs. " + money(totalPurchase);
+
+
+  document
+    .getElementById("netProfit")
+    .innerText =
+    "Rs. " + money(netProfit);
+
+
+  /*
+   * Record count
+   */
+
+  document
+    .getElementById("recordCount")
+    .innerText =
+    records.length +
+    (
+      records.length === 1
+        ? " record"
+        : " records"
+    );
+
+
+  /*
+   * Render table
+   */
+
+  renderTable(records);
+
+}
+
+
+/* ============================================================
+   RENDER TABLE
+============================================================ */
+
+function renderTable(records) {
+
+  const table =
+    document.getElementById(
+      "salesTable"
+    );
+
+
+  table.innerHTML = "";
+
+
+  if (
+    records.length === 0
+  ) {
+
+    table.innerHTML = `
+      <tr>
+        <td
+          colspan="8"
+          class="p-5 text-center text-gray-400"
+        >
+          No records found for this selection.
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+
+  /*
+   * Latest first
+   *
+   * Only display 50 to keep
+   * frontend fast.
+   */
+
+  const visibleRecords =
+    records
+      .slice()
+      .reverse()
+      .slice(0, 50);
+
+
+  visibleRecords.forEach(
+    function(row) {
+
+      const displayDate =
+        formatDateDisplay(
+          row[0]
+        );
+
+
+      const type =
+        row[1] || "Sale";
+
+
+      const isSale =
+        String(type)
+          .toLowerCase() ===
+        "sale";
+
+
+      const customer =
+        row[2] ||
+        "Guest Customer";
+
+
+      const product =
+        row[3] ||
+        "Item";
+
+
+      const price =
+        Number(row[4]) || 0;
+
+
+      const qty =
+        Number(row[5]) || 1;
+
+
+      const total =
+        Number(row[6]) ||
+        (
+          price * qty
+        );
+
+
+      const profit =
+        Number(row[8]) || 0;
+
+
+      const phone =
+        row[10] ||
+        "-";
+
+
+      const address =
+        row[11] ||
+        "-";
+
+
+      const shipping =
+        Number(row[12]) || 0;
+
+
+      /*
+       * Create row safely
+       */
+
+      const tr =
+        document.createElement(
+          "tr"
+        );
+
+
+      tr.className =
+        "hover:bg-pink-50/50 transition-colors";
+
+
+      const typeClass =
+        isSale
+          ? "bg-green-100 text-green-700"
+          : "bg-red-100 text-red-700";
+
+
+      const profitClass =
+        !isSale
+          ? "text-gray-400"
+          : (
+              profit >= 0
+                ? "text-green-600"
+                : "text-red-500"
+            );
+
+
+      tr.innerHTML = `
+
+        <td class="p-2.5 font-medium text-gray-700">
+          ${escapeHtml(displayDate)}
+        </td>
+
+        <td class="p-2.5">
+
+          <span
+            class="${typeClass} text-[10px] px-2 py-0.5 rounded-full font-bold"
+          >
+            ${escapeHtml(type)}
+          </span>
+
+        </td>
+
+        <td class="p-2.5">
+
+          <div class="font-semibold text-gray-800">
+            ${escapeHtml(customer)}
+          </div>
+
+          ${
+            isSale
+              ? `
+                <div class="text-[10px] text-gray-400 mt-0.5">
+                  ${escapeHtml(phone)}
+                </div>
+              `
+              : ""
+          }
+
+        </td>
+
+        <td class="p-2.5 text-gray-700">
+          ${escapeHtml(product)}
+        </td>
+
+        <td class="p-2.5 text-gray-600">
+          ${qty}
+        </td>
+
+        <td class="p-2.5 font-bold text-gray-800">
+          Rs. ${money(total)}
+        </td>
+
+        <td
+          class="p-2.5 font-bold ${profitClass}"
+        >
+          ${
+            isSale
+              ? "Rs. " + money(profit)
+              : "-"
+          }
+        </td>
+
+        <td class="p-2.5">
+
+          ${
+            isSale
+              ? `
+                <button
+                  class="invoice-btn bg-pink-100 hover:bg-pink-200 text-burgundy text-xs px-2.5 py-1 rounded-md font-bold shadow-sm transition"
+                >
+                  🧾 Invoice
+                </button>
+              `
+              : `
+                <span class="text-xs text-gray-400">
+                  Stock In
+                </span>
+              `
+          }
+
+        </td>
+
+      `;
+
+
+      /*
+       * Invoice button event
+       */
+
+      if (isSale) {
+
+        const invoiceBtn =
+          tr.querySelector(
+            ".invoice-btn"
+          );
+
+
+        invoiceBtn.addEventListener(
+          "click",
+          function() {
+
+            openInvoiceModal(
+              displayDate,
+              customer,
+              product,
+              qty,
+              price,
+              shipping,
+              phone,
+              address
+            );
+
+          }
+        );
+
+      }
+
+
+      table.appendChild(tr);
+
+    }
+  );
+
+
+  /*
+   * More records message
+   */
+
+  if (
+    records.length > 50
+  ) {
+
+    const moreRow =
+      document.createElement(
+        "tr"
+      );
+
+
+    moreRow.innerHTML = `
+      <td
+        colspan="8"
+        class="p-3 text-center text-gray-400 text-xs"
+      >
+        Showing latest 50 records.
+        Total records: ${records.length}
+      </td>
+    `;
+
+
+    table.appendChild(
+      moreRow
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   SUBMIT DATA
+============================================================ */
+
+async function submitData(e) {
+
+  e.preventDefault();
+
+
+  const btn =
+    document.getElementById(
+      "submitBtn"
+    );
+
+
+  const btnText =
+    document.getElementById(
+      "submitBtnText"
+    );
+
+
+  if (btn.disabled) {
+    return;
+  }
+
+
+  /*
+   * Get values
+   */
+
+  const type =
+    document.getElementById(
+      "type"
+    ).value;
+
+
+  const date =
+    document.getElementById(
+      "date"
+    ).value;
+
+
+  const customer =
+    document.getElementById(
+      "customer"
+    ).value.trim();
+
+
+  const phone =
+    document.getElementById(
+      "phone"
+    ).value.trim();
+
+
+  const address =
+    document.getElementById(
+      "address"
+    ).value.trim();
+
+
+  const product =
+    document.getElementById(
+      "product"
+    ).value.trim();
+
+
+  const price =
+    document.getElementById(
+      "price"
+    ).value;
+
+
+  const costPrice =
+    document.getElementById(
+      "costPrice"
+    ).value || 0;
+
+
+  const quantity =
+    document.getElementById(
+      "quantity"
+    ).value;
+
+
+  const shipping =
+    document.getElementById(
+      "shipping"
+    ).value || 0;
+
+
+  /*
+   * Basic validation
+   */
+
+  if (!date) {
+
+    alert(
+      "Please select a date."
+    );
+
+    return;
+
+  }
+
+
+  if (!product) {
+
+    alert(
+      "Please enter product name."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !price ||
+    Number(price) < 0
+  ) {
+
+    alert(
+      "Please enter a valid price."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    !quantity ||
+    Number(quantity) <= 0
+  ) {
+
+    alert(
+      "Please enter a valid quantity."
+    );
+
+    return;
+
+  }
+
+
+  if (
+    type === "sale" &&
+    !customer
+  ) {
+
+    alert(
+      "Please enter customer name."
+    );
+
+    return;
+
+  }
+
+
+  /*
+   * Payload
+   */
+
+  const payload = {
+
+    type: type,
+
+    date: date,
+
+    customer:
+      customer || "-",
+
+    phone:
+      phone || "-",
+
+    address:
+      address || "-",
+
+    product:
+      product,
+
+    price:
+      Number(price) || 0,
+
+    costPrice:
+      Number(costPrice) || 0,
+
+    quantity:
+      Number(quantity) || 0,
+
+    shipping:
+      Number(shipping) || 0
+
+  };
+
+
+  /*
+   * Button loading
+   */
+
+  btn.disabled = true;
+
+  btn.classList.add(
+    "opacity-70",
+    "cursor-not-allowed"
+  );
+
+
+  btnText.innerText =
+    "Saving...";
+
+
+  try {
+
+    /*
+     * IMPORTANT:
+     *
+     * no-cors removed.
+     *
+     * text/plain avoids CORS
+     * preflight with Apps Script.
+     */
+
+    const response =
+      await fetch(
+        SCRIPT_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+
+          body:
+            JSON.stringify(payload)
+        }
+      );
+
+
+    /*
+     * Apps Script response
+     */
+
+    let result = null;
+
+
+    try {
+
+      result =
+        await response.json();
+
+    } catch (jsonError) {
+
+      /*
+       * Some Apps Script
+       * deployments may return
+       * an unreadable response.
+       *
+       * The request itself can
+       * still have succeeded.
+       */
+
+      result = {
+        status: "success"
+      };
+
+    }
+
+
+    if (
+      result &&
+      result.status === "error"
+    ) {
+
+      throw new Error(
+        result.message ||
+        "Google Apps Script error."
+      );
+
+    }
+
+
+    /*
+     * Success
+     */
+
+    alert(
+      "✅ Entry Saved Successfully!"
+    );
+
+
+    /*
+     * Reset form
+     */
+
+    document
+      .getElementById(
+        "entryForm"
+      )
+      .reset();
+
+
+    setTodayDate();
 
     toggleFields();
-  </script>
+
+
+    /*
+     * Reload data immediately
+     */
+
+    await new Promise(
+      function(resolve) {
+
+        setTimeout(
+          resolve,
+          250
+        );
+
+      }
+    );
+
+
+    loadData();
+
+
+  } catch (error) {
+
+    console.error(
+      "Save error:",
+      error
+    );
+
+
+    alert(
+      "❌ Error saving data:\n\n" +
+      error.message
+    );
+
+
+  } finally {
+
+    btn.disabled = false;
+
+    btn.classList.remove(
+      "opacity-70",
+      "cursor-not-allowed"
+    );
+
+    btnText.innerText =
+      "Save Entry to Sheet";
+
+  }
+
+}
+
+
+/* ============================================================
+   INVOICE
+============================================================ */
+
+function openInvoiceModal(
+  date,
+  customer,
+  product,
+  qty,
+  price,
+  shipping,
+  phone,
+  address
+) {
+
+
+  const quantity =
+    Number(qty) || 0;
+
+
+  const unitPrice =
+    Number(price) || 0;
+
+
+  const shippingAmount =
+    Number(shipping) || 0;
+
+
+  const itemSubTotal =
+    unitPrice *
+    quantity;
+
+
+  const grandTotal =
+    itemSubTotal +
+    shippingAmount;
+
+
+  /*
+   * Customer
+   */
+
+  document
+    .getElementById(
+      "invDate"
+    )
+    .innerText =
+    date || "--";
+
+
+  document
+    .getElementById(
+      "invCustomer"
+    )
+    .innerText =
+    customer ||
+    "Guest Customer";
+
+
+  document
+    .getElementById(
+      "invPhone"
+    )
+    .innerText =
+    phone ||
+    "-";
+
+
+  document
+    .getElementById(
+      "invAddress"
+    )
+    .innerText =
+    address ||
+    "Standard Delivery";
+
+
+  /*
+   * Product
+   */
+
+  document
+    .getElementById(
+      "invProduct"
+    )
+    .innerText =
+    product ||
+    "Item";
+
+
+  document
+    .getElementById(
+      "invQty"
+    )
+    .innerText =
+    quantity;
+
+
+  document
+    .getElementById(
+      "invUnitPrice"
+    )
+    .innerText =
+    money(unitPrice);
+
+
+  document
+    .getElementById(
+      "invTotal"
+    )
+    .innerText =
+    money(itemSubTotal);
+
+
+  /*
+   * Summary
+   */
+
+  document
+    .getElementById(
+      "invSubTotal"
+    )
+    .innerText =
+    "Rs. " +
+    money(itemSubTotal);
+
+
+  /*
+   * Shipping
+   */
+
+  const shippingBadge =
+    document.getElementById(
+      "invShippingBadge"
+    );
+
+
+  if (
+    shippingAmount > 0
+  ) {
+
+    shippingBadge.innerText =
+      "Rs. " +
+      money(shippingAmount);
+
+    shippingBadge.className =
+      "font-bold text-gray-800";
+
+  } else {
+
+    shippingBadge.innerText =
+      "Free Delivery";
+
+    shippingBadge.className =
+      "font-bold text-green-600";
+
+  }
+
+
+  /*
+   * Grand Total
+   */
+
+  document
+    .getElementById(
+      "invGrandTotal"
+    )
+    .innerText =
+    "Rs. " +
+    money(grandTotal);
+
+
+  /*
+   * Invoice Number
+   */
+
+  const randNum =
+    Math.floor(
+      100000 +
+      Math.random() *
+      900000
+    );
+
+
+  const invoiceNo =
+    "AC-" +
+    randNum;
+
+
+  document
+    .getElementById(
+      "invNoBadge"
+    )
+    .innerText =
+    "#" + invoiceNo;
+
+
+  document
+    .getElementById(
+      "invOrderNo"
+    )
+    .innerText =
+    invoiceNo;
+
+
+  /*
+   * Show modal
+   */
+
+  const modal =
+    document.getElementById(
+      "invoiceModal"
+    );
+
+
+  modal.classList.remove(
+    "hidden"
+  );
+
+  modal.classList.add(
+    "flex"
+  );
+
+}
+
+
+/* ============================================================
+   CLOSE INVOICE
+============================================================ */
+
+function closeInvoiceModal() {
+
+  const modal =
+    document.getElementById(
+      "invoiceModal"
+    );
+
+
+  modal.classList.add(
+    "hidden"
+  );
+
+  modal.classList.remove(
+    "flex"
+  );
+
+}
+
+
+/* ============================================================
+   PRINT INVOICE
+============================================================ */
+
+function printInvoice() {
+
+  window.print();
+
+}
+
+
+/* ============================================================
+   SHARE INVOICE
+============================================================ */
+
+async function shareNativeInvoiceFile() {
+
+  const element =
+    document.getElementById(
+      "invoicePrintArea"
+    );
+
+
+  const custName =
+    document
+      .getElementById(
+        "invCustomer"
+      )
+      .innerText
+      .replace(
+        /\s+/g,
+        "_"
+      )
+      .replace(
+        /[^a-zA-Z0-9_-]/g,
+        ""
+      );
+
+
+  try {
+
+    /*
+     * Create image
+     */
+
+    const canvas =
+      await html2canvas(
+        element,
+        {
+          scale: 2,
+          useCORS: true,
+          backgroundColor:
+            "#FFF8F9"
+        }
+      );
+
+
+    canvas.toBlob(
+      async function(blob) {
+
+        if (!blob) {
+
+          alert(
+            "Unable to create invoice image."
+          );
+
+          return;
+
+        }
+
+
+        const file =
+          new File(
+            [
+              blob
+            ],
+            `AfsheenCollection_Invoice_${custName}.png`,
+            {
+              type:
+                "image/png"
+            }
+          );
+
+
+        /*
+         * Mobile native share
+         */
+
+        if (
+          navigator.canShare &&
+          navigator.canShare({
+            files: [file]
+          })
+        ) {
+
+          try {
+
+            await navigator.share(
+              {
+                files: [file],
+
+                title:
+                  "Customer Invoice - Afsheen Collection",
+
+                text:
+                  "Here is your official sales invoice from Afsheen Collection."
+              }
+            );
+
+          } catch (err) {
+
+            /*
+             * User cancelled
+             */
+
+            console.log(
+              "Share cancelled:",
+              err
+            );
+
+          }
+
+        } else {
+
+          /*
+           * Desktop fallback
+           */
+
+          const link =
+            document.createElement(
+              "a"
+            );
+
+
+          link.download =
+            `AfsheenCollection_Invoice_${custName}.png`;
+
+
+          link.href =
+            canvas.toDataURL(
+              "image/png"
+            );
+
+
+          document.body.appendChild(
+            link
+          );
+
+
+          link.click();
+
+
+          link.remove();
+
+
+          alert(
+            "Invoice image downloaded!"
+          );
+
+        }
+
+      },
+      "image/png"
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Invoice error:",
+      error
+    );
+
+
+    alert(
+      "Unable to create invoice image."
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   ESC CLOSE MODAL
+============================================================ */
+
+document.addEventListener(
+  "keydown",
+  function(e) {
+
+    if (
+      e.key === "Escape"
+    ) {
+
+      closeInvoiceModal();
+
+    }
+
+  }
+);
+
+
+/* ============================================================
+   CLICK OUTSIDE INVOICE MODAL
+============================================================ */
+
+document
+  .getElementById(
+    "invoiceModal"
+  )
+  .addEventListener(
+    "click",
+    function(e) {
+
+      if (
+        e.target === this
+      ) {
+
+        closeInvoiceModal();
+
+      }
+
+    }
+  );
+
+
+/* ============================================================
+   START
+============================================================ */
+
+setTodayDate();
+
+toggleFields();
+
+</script>
+
 </body>
 </html>
