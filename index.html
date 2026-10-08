@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Afsheen Collection - Sales & Purchase Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- html2pdf for PDF Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -36,25 +38,25 @@
       <div class="bg-white/10 px-4 py-2 rounded-lg border border-white/20 text-xs">
         <span class="block text-pink-200">System Status</span>
         <span class="font-bold text-green-300 flex items-center gap-1 justify-center sm:justify-start">
-          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Google Sheet Connected
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Google Sheet Live
         </span>
       </div>
     </div>
   </header>
 
-  <main class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
+  <main id="dashboardReport" class="max-w-5xl mx-auto px-4 mt-6 space-y-6">
 
-    <!-- Month Filter Bar -->
+    <!-- Month Filter Bar & PDF Export -->
     <div class="bg-white p-4 rounded-xl shadow-md border border-pink-100 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3 w-full sm:w-auto">
-        <label class="font-bold text-gray-700 text-sm whitespace-nowrap">📅 Filter Month Tab:</label>
+        <label class="font-bold text-gray-700 text-sm whitespace-nowrap">📅 Select Month:</label>
         <select id="monthFilter" onchange="filterData()" class="w-full sm:w-56 p-2 border border-pink-200 rounded-lg bg-pink-50/50 font-bold text-burgundy focus:outline-none focus:ring-2 focus:ring-pink-400">
           <!-- Populated dynamically -->
         </select>
       </div>
-      <div class="text-xs text-gray-500 italic text-right w-full sm:w-auto">
-        Default set to Current Month • Filter anytime
-      </div>
+      <button onclick="downloadReportPDF()" class="w-full sm:w-auto bg-gray-800 hover:bg-gray-900 text-white font-bold text-xs py-2 px-4 rounded-lg shadow flex items-center justify-center gap-2">
+        <span>🖨️</span> Download Report (PDF)
+      </button>
     </div>
 
     <!-- KPI Summary Cards -->
@@ -93,7 +95,7 @@
         <h2 class="text-lg font-bold text-burgundy font-serif-title flex items-center gap-2">
           <span>➕</span> Add New Transaction
         </h2>
-        <span class="text-xs bg-pink-100 text-burgundy px-2.5 py-1 rounded-full font-medium">Auto Tab Creator</span>
+        <span class="text-xs bg-pink-100 text-burgundy px-2.5 py-1 rounded-full font-medium">Current Month Active</span>
       </div>
 
       <form id="entryForm" onsubmit="submitData(event)" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -164,7 +166,7 @@
               <th class="p-2.5">Qty</th>
               <th class="p-2.5">Total Sale</th>
               <th class="p-2.5">Profit</th>
-              <th class="p-2.5">Tab Month</th>
+              <th class="p-2.5">Action</th>
             </tr>
           </thead>
           <tbody id="salesTable" class="divide-y divide-gray-100">
@@ -178,15 +180,91 @@
 
   </main>
 
+  <!-- Customer Invoice Modal -->
+  <div id="invoiceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-2 border-gold max-h-[90vh] overflow-y-auto">
+      <button onclick="closeInvoiceModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-lg">✕</button>
+      
+      <!-- Invoice Printable Content -->
+      <div id="invoicePrintArea" class="p-4 bg-white space-y-4">
+        <div class="text-center border-b pb-4 border-pink-100">
+          <img src="Afsheen Beauty Collection Badge.png" alt="Logo" class="w-20 h-20 mx-auto rounded-full border border-gold mb-2 object-cover" onerror="this.onerror=null; this.src='https://via.placeholder.com/150/8B263E/FFFFFF?text=AC';">
+          <h2 class="text-xl font-bold font-serif-title text-burgundy">AFSHEEN COLLECTION</h2>
+          <p class="text-[11px] text-amber-700 italic">Beauty in Every Shade</p>
+          <p class="text-xs font-semibold text-gray-500 mt-2">OFFICIAL SALES INVOICE</p>
+        </div>
+
+        <div class="text-xs space-y-1 text-gray-600 bg-pink-50/50 p-3 rounded-lg">
+          <p><strong>Invoice Date:</strong> <span id="invDate">--</span></p>
+          <p><strong>Customer Name:</strong> <span id="invCustomer" class="text-gray-900 font-bold">--</span></p>
+        </div>
+
+        <table class="w-full text-xs text-left border-collapse my-2">
+          <thead>
+            <tr class="border-b border-gray-200 font-bold text-gray-700">
+              <th class="py-2">Item</th>
+              <th class="py-2 text-center">Qty</th>
+              <th class="py-2 text-right">Price</th>
+              <th class="py-2 text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr>
+              <td id="invProduct" class="py-2 text-gray-800 font-medium">--</td>
+              <td id="invQty" class="py-2 text-center">--</td>
+              <td id="invUnitPrice" class="py-2 text-right">--</td>
+              <td id="invTotal" class="py-2 text-right font-bold text-burgundy">--</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="border-t border-gray-200 pt-3 flex justify-between items-center text-sm font-bold text-burgundy">
+          <span>Grand Total Amount:</span>
+          <span id="invGrandTotal" class="text-base">Rs. 0</span>
+        </div>
+
+        <div class="text-center text-[10px] text-gray-400 border-t pt-3 mt-4">
+          Thank you for shopping with Afsheen Collection! ❤️
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="mt-4 flex gap-2">
+        <button onclick="downloadCustomerInvoicePDF()" class="w-full theme-burgundy text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow hover:bg-opacity-90 flex items-center justify-center gap-2">
+          <span>📥</span> Download Customer Invoice (PDF)
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc05RFtP1AAExqqayraHG-q0WX6jtlEttgandpidUzKSYNeziAvYvIeghhL5mz8owVmw/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/library/d/1ykp9DglJeWq0SAdi2s3HBLTmyrEZDFtl1BJqyNI7z2GbYKdGAAJUmxPg/5";
 
     let rawData = { sales: [], purchase: [] };
 
-    // Get current month string (e.g., "Oct 2026")
+    // Standard Current Month String e.g. "Oct 2026"
     function getCurrentMonthStr() {
       const d = new Date();
-      return d.toLocaleString('default', { month: 'short', year: 'numeric' });
+      return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    // Convert raw date string to Month String e.g. "Oct 2026"
+    function parseToMonthStr(dateVal) {
+      if (!dateVal) return getCurrentMonthStr();
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return getCurrentMonthStr();
+      return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+    }
+
+    // Format Date to DD/MM/YYYY
+    function formatDateDisplay(dateVal) {
+      if (!dateVal) return '-';
+      const d = new Date(dateVal);
+      if (isNaN(d.getTime())) return String(dateVal).split('T')[0];
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
     }
 
     document.getElementById('date').valueAsDate = new Date();
@@ -202,10 +280,9 @@
 
     async function loadData() {
       const table = document.getElementById("salesTable");
-      table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">Syncing with Google Sheets...</td></tr>`;
+      table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">Syncing live data from Google Sheet...</td></tr>`;
 
       try {
-        // Using JSONP fallback or standard fetch to avoid CORS issue
         const response = await fetch(SCRIPT_URL + "?action=getData");
         rawData = await response.json();
         
@@ -213,44 +290,43 @@
         filterData();
       } catch(err) {
         console.error("Fetch Error:", err);
-        // Fallback retry using no-cors mode notice or secondary parse
-        table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 font-bold">Error loading data. Please make sure Google Apps Script is deployed as "Anyone".</td></tr>`;
+        table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 font-bold">Error loading data. Check Web App URL.</td></tr>`;
       }
     }
 
     function populateMonths() {
       const months = new Set();
       const currentM = getCurrentMonthStr();
-      months.add(currentM); // Ensure current month is always present
+      months.add(currentM);
 
       if(rawData.sales && rawData.sales.length > 1) {
-        rawData.sales.slice(1).forEach(row => row[8] && months.add(row[8]));
-      }
-      if(rawData.purchase && rawData.purchase.length > 1) {
-        rawData.purchase.slice(1).forEach(row => row[5] && months.add(row[5]));
+        rawData.sales.slice(1).forEach(row => {
+          const m = row[8] || parseToMonthStr(row[0]);
+          if(m) months.add(m.trim());
+        });
       }
 
       const filter = document.getElementById("monthFilter");
       const previousSelection = filter.value;
       filter.innerHTML = '';
       
-      // Add Current Month first as Default
+      // Default option: Current Month
       filter.innerHTML += `<option value="${currentM}">📅 Current Month (${currentM})</option>`;
       
-      // Add other months
+      // Other months
       Array.from(months).forEach(m => {
         if (m !== currentM) {
           filter.innerHTML += `<option value="${m}">${m}</option>`;
         }
       });
 
-      // All Months Summary option
+      // All Summary option
       filter.innerHTML += `<option value="All">📊 All Months Summary</option>`;
 
       if (previousSelection && (months.has(previousSelection) || previousSelection === "All")) {
         filter.value = previousSelection;
       } else {
-        filter.value = currentM; // Default to Current Month
+        filter.value = currentM; // Default Current Month
       }
     }
 
@@ -261,8 +337,14 @@
       let purchases = (rawData.purchase && rawData.purchase.length > 1) ? rawData.purchase.slice(1) : [];
 
       if (selectedMonth !== "All") {
-        sales = sales.filter(r => String(r[8]).trim() === String(selectedMonth).trim());
-        purchases = purchases.filter(r => String(r[5]).trim() === String(selectedMonth).trim());
+        sales = sales.filter(r => {
+          const rowMonth = r[8] ? String(r[8]).trim() : parseToMonthStr(r[0]);
+          return rowMonth === selectedMonth.trim();
+        });
+        purchases = purchases.filter(r => {
+          const rowMonth = r[5] ? String(r[5]).trim() : parseToMonthStr(r[0]);
+          return rowMonth === selectedMonth.trim();
+        });
       }
 
       let totalSales = sales.reduce((acc, r) => acc + (Number(r[5]) || 0), 0);
@@ -281,17 +363,27 @@
         return;
       }
 
-      sales.slice().reverse().slice(0, 20).forEach(r => {
-        const dateStr = r[0] ? new Date(r[0]).toLocaleDateString('en-GB') : '-';
+      sales.slice().reverse().slice(0, 20).forEach((r, idx) => {
+        const displayDate = formatDateDisplay(r[0]);
+        const customer = r[1] || 'Guest Customer';
+        const product = r[2] || 'Item';
+        const price = Number(r[3]) || 0;
+        const qty = Number(r[4]) || 1;
+        const total = Number(r[5]) || (price * qty);
+
         table.innerHTML += `
           <tr class="hover:bg-pink-50/50 transition-colors">
-            <td class="p-2.5 font-medium text-gray-700">${dateStr}</td>
-            <td class="p-2.5 text-gray-800 font-semibold">${r[1] || '-'}</td>
-            <td class="p-2.5 text-gray-700">${r[2] || '-'}</td>
-            <td class="p-2.5 text-gray-600">${r[4] || 1}</td>
-            <td class="p-2.5 font-bold text-gray-800">Rs. ${Number(r[5]||0).toLocaleString()}</td>
+            <td class="p-2.5 font-medium text-gray-700">${displayDate}</td>
+            <td class="p-2.5 text-gray-800 font-semibold">${customer}</td>
+            <td class="p-2.5 text-gray-700">${product}</td>
+            <td class="p-2.5 text-gray-600">${qty}</td>
+            <td class="p-2.5 font-bold text-gray-800">Rs. ${total.toLocaleString()}</td>
             <td class="p-2.5 font-bold text-green-600">Rs. ${Number(r[7]||0).toLocaleString()}</td>
-            <td class="p-2.5"><span class="bg-pink-100 text-burgundy text-[10px] px-2 py-0.5 rounded-full font-bold">${r[8] || 'General'}</span></td>
+            <td class="p-2.5">
+              <button onclick="openInvoiceModal('${displayDate}', '${customer.replace(/'/g, "\\'")}', '${product.replace(/'/g, "\\'")}', ${qty}, ${price}, ${total})" class="bg-pink-100 hover:bg-pink-200 text-burgundy text-xs px-2.5 py-1 rounded-md font-bold shadow-sm transition">
+                🧾 Invoice
+              </button>
+            </td>
           </tr>`;
       });
     }
@@ -303,8 +395,7 @@
       btn.innerHTML = "<span>⏳</span> Saving to Sheet...";
 
       const dateVal = document.getElementById("date").value;
-      const dateObj = new Date(dateVal);
-      const monthStr = dateVal ? dateObj.toLocaleString('default', { month: 'short', year: 'numeric' }) : getCurrentMonthStr();
+      const monthStr = parseToMonthStr(dateVal);
 
       const payload = {
         type: document.getElementById("type").value,
@@ -320,17 +411,16 @@
       try {
         await fetch(SCRIPT_URL, {
           method: "POST",
-          mode: "no-cors", // Ensures submit works smoothly without browser blocking
+          mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
-        alert(`Entry Saved Successfully! Added to tab "${monthStr} ${payload.type === 'sale' ? 'Sales' : 'Purchase'}"`);
+        alert(`Entry Saved! Data saved to "${monthStr}" record.`);
         document.getElementById("entryForm").reset();
         document.getElementById('date').valueAsDate = new Date();
         toggleFields();
         
-        // Wait 1.5s for sheet update and refresh dashboard
         setTimeout(loadData, 1500);
       } catch(err) {
         alert("Error saving data: " + err);
@@ -338,6 +428,51 @@
         btn.disabled = false;
         btn.innerHTML = "<span>💾</span> Save Entry to Sheet";
       }
+    }
+
+    // Modal Invoice Functions
+    function openInvoiceModal(date, customer, product, qty, price, total) {
+      document.getElementById("invDate").innerText = date;
+      document.getElementById("invCustomer").innerText = customer;
+      document.getElementById("invProduct").innerText = product;
+      document.getElementById("invQty").innerText = qty;
+      document.getElementById("invUnitPrice").innerText = "Rs. " + Number(price).toLocaleString();
+      document.getElementById("invTotal").innerText = "Rs. " + Number(total).toLocaleString();
+      document.getElementById("invGrandTotal").innerText = "Rs. " + Number(total).toLocaleString();
+      
+      document.getElementById("invoiceModal").classList.remove("hidden");
+    }
+
+    function closeInvoiceModal() {
+      document.getElementById("invoiceModal").classList.add("hidden");
+    }
+
+    // Download Customer Invoice PDF
+    function downloadCustomerInvoicePDF() {
+      const element = document.getElementById('invoicePrintArea');
+      const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
+      const opt = {
+        margin:       0.2,
+        filename:     `Invoice_AfsheenCollection_${custName}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'a5', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // Download Monthly Report PDF
+    function downloadReportPDF() {
+      const element = document.getElementById('dashboardReport');
+      const monthSel = document.getElementById('monthFilter').value;
+      const opt = {
+        margin:       0.3,
+        filename:     `AfsheenCollection_Report_${monthSel}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
     }
 
     toggleFields();
