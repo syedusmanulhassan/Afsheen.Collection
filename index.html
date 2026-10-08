@@ -38,7 +38,7 @@
       <div class="bg-white/10 px-4 py-2 rounded-lg border border-white/20 text-xs">
         <span class="block text-pink-200">System Status</span>
         <span class="font-bold text-green-300 flex items-center gap-1 justify-center sm:justify-start">
-          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Google Sheet Live
+          <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Google Sheet Connected
         </span>
       </div>
     </div>
@@ -180,7 +180,7 @@
 
   </main>
 
-  <!-- Customer Invoice Modal (No Purchase Cost Shown) -->
+  <!-- Customer Invoice Modal -->
   <div id="invoiceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative border-2 border-gold max-h-[90vh] overflow-y-auto">
       <button onclick="closeInvoiceModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 font-bold text-lg">✕</button>
@@ -199,7 +199,6 @@
           <p><strong>Customer Name:</strong> <span id="invCustomer" class="text-gray-900 font-bold">--</span></p>
         </div>
 
-        <!-- Product Table (Only Sales Price & Total) -->
         <table class="w-full text-xs text-left border-collapse my-3">
           <thead>
             <tr class="border-b border-gray-200 font-bold text-gray-700 bg-gray-50">
@@ -224,7 +223,6 @@
           <span id="invGrandTotal" class="text-lg text-burgundy">Rs. 0</span>
         </div>
 
-        <!-- Contact & Social Footer -->
         <div class="border-t border-pink-100 pt-3 mt-4 text-[11px] text-gray-600 space-y-1.5 bg-pink-50/30 p-3 rounded-lg">
           <p class="font-bold text-burgundy flex items-center gap-1">
             💬 WhatsApp: <span class="text-gray-800 font-normal">0322 5331900</span>
@@ -242,7 +240,6 @@
         </div>
       </div>
 
-      <!-- Action Buttons -->
       <div class="mt-4">
         <button onclick="downloadCustomerInvoicePDF()" class="w-full theme-burgundy text-white font-bold text-xs py-2.5 px-4 rounded-lg shadow hover:bg-opacity-90 flex items-center justify-center gap-2">
           <span>📥</span> Download Customer Invoice (PDF)
@@ -252,7 +249,7 @@
   </div>
 
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc05RFtP1AAExqqayraHG-q0WX6jtlEttgandpidUzKSYNeziAvYvIeghhL5mz8owVmw/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwK-i18zKNX7DGs9eRwixezujveYOGmPR1bJ3WP9Ek6iaweIt8Ci-acWWhCxRywZcG8LA/exec";
 
     let rawData = { sales: [], purchase: [] };
 
@@ -289,22 +286,40 @@
       document.getElementById("priceLabel").innerText = isSale ? "Selling Price (Per Unit)" : "Purchase Price (Per Unit)";
     }
 
-    // JSONP Fetch to completely eliminate CORS / Network Errors
-    function loadData() {
+    // Advanced Data Loader with Dual Fallback
+    async function loadData() {
       const table = document.getElementById("salesTable");
       table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-500">Syncing live data from Google Sheet...</td></tr>`;
 
+      try {
+        // Try standard fetch first
+        const response = await fetch(SCRIPT_URL + "?action=getData");
+        if(response.ok) {
+          rawData = await response.json();
+          populateMonths();
+          filterData();
+          return;
+        }
+      } catch (e) {
+        console.log("Direct fetch failed, trying JSONP fallback...");
+      }
+
+      // JSONP Fallback Method
+      const oldScript = document.getElementById('jsonpScript');
+      if (oldScript) oldScript.remove();
+
       const script = document.createElement('script');
+      script.id = 'jsonpScript';
+      
       window.handleScriptResponse = function(data) {
         rawData = data;
         populateMonths();
         filterData();
-        document.body.removeChild(script);
       };
 
-      script.src = SCRIPT_URL + "?action=getData&callback=handleScriptResponse";
+      script.src = SCRIPT_URL + "?action=getData&callback=handleScriptResponse&ts=" + new Date().getTime();
       script.onerror = function() {
-        table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 font-bold">Error loading data. Make sure Google Apps Script is deployed to "Anyone".</td></tr>`;
+        table.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-red-500 font-bold">Unable to connect. Please verify Apps Script deployment is set to "Anyone".</td></tr>`;
       };
       document.body.appendChild(script);
     }
@@ -426,66 +441,4 @@
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
-        });
-
-        alert(`Entry Saved Successfully!`);
-        document.getElementById("entryForm").reset();
-        document.getElementById('date').valueAsDate = new Date();
-        toggleFields();
-        
-        setTimeout(loadData, 1500);
-      } catch(err) {
-        alert("Error saving data: " + err);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = "<span>💾</span> Save Entry to Sheet";
-      }
-    }
-
-    function openInvoiceModal(date, customer, product, qty, price, total) {
-      document.getElementById("invDate").innerText = date;
-      document.getElementById("invCustomer").innerText = customer;
-      document.getElementById("invProduct").innerText = product;
-      document.getElementById("invQty").innerText = qty;
-      document.getElementById("invUnitPrice").innerText = "Rs. " + Number(price).toLocaleString();
-      document.getElementById("invTotal").innerText = "Rs. " + Number(total).toLocaleString();
-      document.getElementById("invGrandTotal").innerText = "Rs. " + Number(total).toLocaleString();
-      
-      document.getElementById("invoiceModal").classList.remove("hidden");
-    }
-
-    function closeInvoiceModal() {
-      document.getElementById("invoiceModal").classList.add("hidden");
-    }
-
-    function downloadCustomerInvoicePDF() {
-      const element = document.getElementById('invoicePrintArea');
-      const custName = document.getElementById("invCustomer").innerText.replace(/\s+/g, '_');
-      const opt = {
-        margin:       0.15,
-        filename:     `Invoice_${custName}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'a5', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
-    }
-
-    function downloadReportPDF() {
-      const element = document.getElementById('dashboardReport');
-      const monthSel = document.getElementById('monthFilter').value;
-      const opt = {
-        margin:       0.3,
-        filename:     `AfsheenCollection_Report_${monthSel}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
-    }
-
-    toggleFields();
-    loadData();
-  </script>
-</body>
-</html>
+        });F
